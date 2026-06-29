@@ -21,7 +21,7 @@ export function WeightChart({ data }: { data: DataPoint[] }) {
           <YAxis domain={[min, max]} tick={{ fill: 'oklch(0.58 0.02 245)', fontSize: 11 }} axisLine={false} tickLine={false} width={40} />
           <Tooltip
             contentStyle={{ background: 'oklch(0.14 0.025 245)', border: '1px solid oklch(0.22 0.025 245)', borderRadius: '12px', color: 'oklch(0.96 0 0)' }}
-            formatter={(v: number) => [`${v}kg`, 'Weight']}
+            formatter={(v) => [`${v}kg`, 'Weight']}
           />
           <Line
             type="monotone"

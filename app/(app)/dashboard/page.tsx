@@ -82,7 +82,7 @@ export default async function DashboardPage() {
       challenge={challenge}
       streaks={streaks}
       latestCheckin={latestCheckin}
-      profile={profile}
+      profile={profile ?? null}
       progressPercent={progressPercent}
       weightLost={weightLost}
       totalWorkouts={myLogs.filter(l => l.workoutDone).length}

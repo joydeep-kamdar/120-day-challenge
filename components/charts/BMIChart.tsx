@@ -26,7 +26,7 @@ export function BMIChart({ data }: { data: DataPoint[] }) {
           <YAxis domain={[15, 40]} tick={{ fill: 'oklch(0.58 0.02 245)', fontSize: 11 }} axisLine={false} tickLine={false} width={35} />
           <Tooltip
             contentStyle={{ background: 'oklch(0.14 0.025 245)', border: '1px solid oklch(0.22 0.025 245)', borderRadius: '12px', color: 'oklch(0.96 0 0)' }}
-            formatter={(v: number) => [v.toFixed(1), 'BMI']}
+            formatter={(v) => [Number(v).toFixed(1), 'BMI']}
           />
           <ReferenceLine y={18.5} stroke="oklch(0.6 0.18 250)" strokeDasharray="4 4" strokeOpacity={0.5} />
           <ReferenceLine y={25} stroke="oklch(0.72 0.22 45)" strokeDasharray="4 4" strokeOpacity={0.5} />

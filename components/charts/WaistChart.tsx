@@ -24,7 +24,7 @@ export function WaistChart({ data }: { data: DataPoint[] }) {
           <YAxis tick={{ fill: 'oklch(0.58 0.02 245)', fontSize: 11 }} axisLine={false} tickLine={false} width={40} />
           <Tooltip
             contentStyle={{ background: 'oklch(0.14 0.025 245)', border: '1px solid oklch(0.22 0.025 245)', borderRadius: '12px', color: 'oklch(0.96 0 0)' }}
-            formatter={(v: number, name: string) => [`${v}cm`, name === 'extended' ? 'Belly out' : 'Sucked in']}
+            formatter={(v, name) => [`${v}cm`, name === 'extended' ? 'Belly out' : 'Sucked in']}
           />
           <Legend formatter={(v) => v === 'extended' ? 'Belly out' : 'Sucked in'} />
           <Line type="monotone" dataKey="extended" stroke="oklch(0.62 0.27 350)" strokeWidth={2.5} dot={{ fill: 'oklch(0.62 0.27 350)', r: 4, strokeWidth: 0 }} />
