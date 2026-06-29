@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -70,7 +70,6 @@ export default function LoginPage() {
 
   return (
     <div style={{ padding: '52px 24px 28px', textAlign: 'center' }}>
-      {/* Hero */}
       <div
         style={{
           background: 'radial-gradient(ellipse at 50% 0%,rgba(99,102,241,.18) 0%,transparent 65%)',
@@ -109,7 +108,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Email form */}
       <form onSubmit={handleLogin}>
         <div
           style={{
@@ -174,5 +172,19 @@ export default function LoginPage() {
         NO PASSWORD NEEDED
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#444' }}>
+          LOADING...
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
