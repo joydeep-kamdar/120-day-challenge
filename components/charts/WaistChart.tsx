@@ -1,6 +1,6 @@
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 
 interface DataPoint {
   weekNumber: number
@@ -15,22 +15,63 @@ export function WaistChart({ data }: { data: DataPoint[] }) {
     suckedIn: d.waistSuckedinCm,
   }))
 
+  const allValues = data.flatMap(d => [d.waistExtendedCm, d.waistSuckedinCm]).filter(Boolean)
+  const min = allValues.length ? Math.floor(Math.min(...allValues)) - 2 : 0
+  const max = allValues.length ? Math.ceil(Math.max(...allValues)) + 2 : 120
+
   return (
-    <div className="rounded-2xl bg-card border border-border p-4">
-      <p className="font-semibold text-sm mb-4">Waist (cm)</p>
-      <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={chartData}>
-          <XAxis dataKey="week" tick={{ fill: 'oklch(0.58 0.02 245)', fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: 'oklch(0.58 0.02 245)', fontSize: 11 }} axisLine={false} tickLine={false} width={40} />
-          <Tooltip
-            contentStyle={{ background: 'oklch(0.14 0.025 245)', border: '1px solid oklch(0.22 0.025 245)', borderRadius: '12px', color: 'oklch(0.96 0 0)' }}
-            formatter={(v, name) => [`${v}cm`, name === 'extended' ? 'Belly out' : 'Sucked in']}
-          />
-          <Legend formatter={(v) => v === 'extended' ? 'Belly out' : 'Sucked in'} />
-          <Line type="monotone" dataKey="extended" stroke="oklch(0.62 0.27 350)" strokeWidth={2.5} dot={{ fill: 'oklch(0.62 0.27 350)', r: 4, strokeWidth: 0 }} />
-          <Line type="monotone" dataKey="suckedIn" stroke="oklch(0.86 0.27 135)" strokeWidth={2.5} strokeDasharray="5 5" dot={{ fill: 'oklch(0.86 0.27 135)', r: 4, strokeWidth: 0 }} />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className="card-base" style={{ padding: '16px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px' }}>WAIST cm</div>
+        {allValues.length >= 2 && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#ec4899' }}>
+            belly out · sucked in
+          </div>
+        )}
+      </div>
+      {chartData.length >= 2 ? (
+        <ResponsiveContainer width="100%" height={160}>
+          <LineChart data={chartData}>
+            <XAxis
+              dataKey="week"
+              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              domain={[min, max]}
+              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              axisLine={false}
+              tickLine={false}
+              width={35}
+            />
+            <Tooltip
+              contentStyle={{ background: '#141414', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff' }}
+              formatter={(v, name) => [`${v}cm`, name === 'extended' ? 'Belly out' : 'Sucked in']}
+            />
+            <Line
+              type="monotone"
+              dataKey="extended"
+              stroke="#ec4899"
+              strokeWidth={2.5}
+              dot={{ fill: '#ec4899', r: 3.5, strokeWidth: 1.5, stroke: '#141414' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="suckedIn"
+              stroke="#ec4899"
+              strokeWidth={2}
+              strokeDasharray="5 5"
+              dot={{ fill: '#ec4899', r: 3, strokeWidth: 1.5, stroke: '#141414' }}
+              strokeOpacity={0.6}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      ) : (
+        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#444' }}>
+          Log check-ins to see progress
+        </div>
+      )}
     </div>
   )
 }

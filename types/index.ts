@@ -76,7 +76,7 @@ export interface Badge {
   earnedAt: Date | string
 }
 
-export type MoodEmoji = '😄' | '😊' | '😐' | '😓' | '💪' | '🔥'
+export type MoodEmoji = '😤' | '💪' | '🔥' | '😊' | '😅' | '⚡' | '🤙' | '😴' | '😄' | '😐' | '😓'
 
 export type BadgeType =
   | 'first_checkin'

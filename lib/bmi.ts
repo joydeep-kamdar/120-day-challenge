@@ -27,10 +27,10 @@ export function getBmiLabel(bmi: number): string {
 export function getBmiColor(bmi: number): string {
   const cat = getBmiCategory(bmi)
   const colors: Record<BmiCategory, string> = {
-    underweight: '#60a5fa',
-    normal: '#4ade80',
-    overweight: '#fb923c',
-    obese: '#f87171',
+    underweight: '#3b82f6',
+    normal: '#22c55e',
+    overweight: '#f59e0b',
+    obese: '#ef4444',
   }
   return colors[cat]
 }

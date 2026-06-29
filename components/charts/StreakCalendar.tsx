@@ -1,38 +1,50 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import { format, subDays } from 'date-fns'
-
 interface Props {
   streakDates: Map<string, boolean>
 }
 
 export function StreakCalendar({ streakDates }: Props) {
-  const days = Array.from(streakDates.entries()).reverse()
+  const today = new Date().toISOString().split('T')[0]
+  const entries = Array.from(streakDates.entries()).reverse()
 
   return (
-    <div className="rounded-2xl bg-card border border-border p-4">
-      <p className="font-semibold text-sm mb-4">Workout Streak (last 60 days)</p>
-      <div className="grid grid-cols-10 gap-1.5">
-        {days.map(([date, done]) => (
-          <div
-            key={date}
-            title={`${date}: ${done ? 'Workout done ✅' : 'Rest day'}`}
-            className={cn(
-              'aspect-square rounded-md transition-colors',
-              done
-                ? 'glow-lime'
-                : 'bg-secondary'
-            )}
-            style={done ? { background: 'oklch(0.86 0.27 135)' } : undefined}
-          />
+    <div className="card-base" style={{ padding: '16px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '12px' }}>
+        WORKOUT CALENDAR
+      </div>
+      {/* Day headers */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', marginBottom: '4px' }}>
+        {['M','T','W','T','F','S','S'].map((d, i) => (
+          <div key={i} style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#2a2a2a' }}>{d}</div>
         ))}
       </div>
-      <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-        <div className="w-3 h-3 rounded-sm bg-secondary" />
-        <span>Rest</span>
-        <div className="w-3 h-3 rounded-sm ml-2" style={{ background: 'oklch(0.86 0.27 135)' }} />
-        <span>Workout</span>
+      {/* Calendar grid — 42 cells (6 weeks) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px' }}>
+        {entries.slice(0, 42).reverse().map(([date, done]) => {
+          const isFuture = date > today
+          const isToday = date === today
+          return (
+            <div
+              key={date}
+              title={`${date}: ${done ? 'Workout done ✅' : 'Rest day'}`}
+              style={{
+                width: '100%',
+                paddingTop: '100%',
+                position: 'relative',
+                borderRadius: '6px',
+                background: isFuture ? 'transparent' : done ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
+                border: isToday ? '1.5px solid #6366f1' : '1px solid transparent',
+              }}
+            />
+          )
+        })}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+        <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>Workout</span>
+        <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(255,255,255,0.04)', marginLeft: '8px' }} />
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>Rest</span>
       </div>
     </div>
   )

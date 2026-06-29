@@ -68,6 +68,7 @@ export default async function DashboardPage() {
     }),
   ])
 
+  const today = new Date().toISOString().split('T')[0]
   const streaks = calculateStreaks(myLogs as Parameters<typeof calculateStreaks>[0])
   const latestCheckin = myCheckins[0] ?? null
   const startWeight = profile?.startWeightKg ?? 0
@@ -75,6 +76,7 @@ export default async function DashboardPage() {
   const currentWeight = latestCheckin?.weightKg ?? startWeight
   const progressPercent = getWeightProgress(currentWeight, startWeight, goalWeight)
   const weightLost = startWeight - currentWeight
+  const hasLoggedToday = myLogs.some(l => l.date === today)
 
   return (
     <DashboardClient
@@ -87,6 +89,7 @@ export default async function DashboardPage() {
       weightLost={weightLost}
       totalWorkouts={myLogs.filter(l => l.workoutDone).length}
       badges={myBadges}
+      hasLoggedToday={hasLoggedToday}
     />
   )
 }

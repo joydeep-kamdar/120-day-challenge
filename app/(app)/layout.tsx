@@ -3,12 +3,44 @@ import { TopBar } from '@/components/nav/TopBar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh flex flex-col max-w-lg mx-auto">
+    <div
+      style={{
+        maxWidth: '430px',
+        margin: '0 auto',
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        background: '#0a0a0a',
+        position: 'relative',
+      }}
+    >
       <TopBar />
-      <main className="flex-1 overflow-y-auto pb-24 pt-16 px-4">
+      <main
+        className="no-scrollbar"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          paddingTop: '60px',
+          paddingBottom: '80px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+        }}
+      >
         {children}
       </main>
-      <BottomNav />
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+          maxWidth: '430px',
+          zIndex: 50,
+        }}
+      >
+        <BottomNav />
+      </div>
     </div>
   )
 }

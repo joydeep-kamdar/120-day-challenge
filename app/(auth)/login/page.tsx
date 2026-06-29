@@ -2,11 +2,7 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Flame, Mail, ArrowRight, CheckCircle } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
@@ -39,98 +35,144 @@ export default function LoginPage() {
 
   if (isVerify || sent) {
     return (
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-orange glow-orange mb-4">
-            <Flame className="w-8 h-8 text-white" />
+      <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+        <div style={{ fontSize: '52px', marginBottom: '16px' }}>📬</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#fff', marginBottom: '8px' }}>
+          CHECK YOUR INBOX
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3a3a3a', letterSpacing: '3px', marginBottom: '24px' }}>
+          MAGIC LINK SENT
+        </div>
+        <div
+          style={{
+            background: '#141414',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '16px',
+            padding: '20px',
+            marginBottom: '20px',
+          }}
+        >
+          <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', color: '#9ca3af', lineHeight: 1.6 }}>
+            We sent a magic link to{' '}
+            <strong style={{ color: '#fff' }}>{email || 'your email'}</strong>.
+            <br />Click it and you&apos;re in. No password needed.
           </div>
-          <h1 className="text-3xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-            <span className="text-gradient-orange">120 Day</span>
-            <br />Challenge
-          </h1>
         </div>
-        <div className="rounded-2xl border border-brand-lime/30 bg-card p-6 text-center space-y-3">
-          <CheckCircle className="w-10 h-10 mx-auto" style={{ color: 'oklch(0.86 0.27 135)' }} />
-          <h2 className="font-semibold text-lg">Check your inbox!</h2>
-          <p className="text-muted-foreground text-sm">
-            We sent a magic link to <strong className="text-foreground">{email || 'your email'}</strong>.
-            Click it and you&apos;re in.
-          </p>
-          <button
-            onClick={() => setSent(false)}
-            className="text-xs text-muted-foreground underline underline-offset-2 mt-2"
-          >
-            Use a different email
-          </button>
-        </div>
+        <button
+          onClick={() => setSent(false)}
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '1px', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          USE A DIFFERENT EMAIL
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="w-full max-w-sm">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-orange glow-orange mb-4">
-          <Flame className="w-8 h-8 text-white" />
-        </div>
-        <h1
-          className="text-3xl font-bold tracking-tight"
-          style={{ fontFamily: 'var(--font-heading)' }}
+    <div style={{ padding: '52px 24px 28px', textAlign: 'center' }}>
+      {/* Hero */}
+      <div
+        style={{
+          background: 'radial-gradient(ellipse at 50% 0%,rgba(99,102,241,.18) 0%,transparent 65%)',
+          paddingBottom: '32px',
+          marginBottom: '16px',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '52px',
+            lineHeight: 1,
+            letterSpacing: '3px',
+            background: 'linear-gradient(135deg,#6366f1,#ec4899)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
         >
-          <span className="text-gradient-orange">120 Day</span>
-          <br />
-          Challenge
-        </h1>
-        <p className="text-muted-foreground mt-2 text-sm">
-          Your crew. Your goals. Let&apos;s get it. 💪
-        </p>
+          120 DAY
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '52px',
+            lineHeight: 1,
+            letterSpacing: '3px',
+            color: '#fff',
+            marginBottom: '10px',
+          }}
+        >
+          CHALLENGE
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3a3a3a', letterSpacing: '4px' }}>
+          THE SQUAD AWAITS
+        </div>
       </div>
 
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email address
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-secondary border-border h-12 rounded-xl"
-                required
-                autoComplete="email"
-                inputMode="email"
-              />
-            </div>
+      {/* Email form */}
+      <form onSubmit={handleLogin}>
+        <div
+          style={{
+            background: '#141414',
+            borderRadius: '16px',
+            border: '1px solid rgba(255,255,255,0.06)',
+            padding: '14px 16px',
+            marginBottom: '12px',
+            textAlign: 'left',
+          }}
+        >
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+            YOUR EMAIL
           </div>
-
-          <Button
-            type="submit"
-            disabled={loading || !email.trim()}
-            className="w-full h-12 text-white font-semibold rounded-xl border-0 text-base hover:opacity-90 transition-opacity gradient-orange glow-orange"
-          >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-                Sending link...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                Get magic link
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            )}
-          </Button>
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{
+              width: '100%',
+              fontSize: '17px',
+              fontWeight: 600,
+              color: '#fff',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              fontFamily: 'var(--font-sans)',
+            }}
+          />
         </div>
 
-        <p className="text-center text-xs text-muted-foreground">
-          No password needed — we&apos;ll email you a secure one-click link.
-        </p>
+        <button
+          type="submit"
+          disabled={loading || !email.trim()}
+          style={{
+            width: '100%',
+            padding: '18px',
+            background: loading || !email.trim()
+              ? 'rgba(99,102,241,0.3)'
+              : 'linear-gradient(135deg,#6366f1,#ec4899)',
+            borderRadius: '14px',
+            textAlign: 'center',
+            cursor: loading || !email.trim() ? 'not-allowed' : 'pointer',
+            fontFamily: 'var(--font-display)',
+            fontSize: '22px',
+            letterSpacing: '2px',
+            color: '#fff',
+            boxShadow: loading || !email.trim() ? 'none' : '0 8px 30px rgba(99,102,241,0.35)',
+            border: 'none',
+            transition: 'all 0.2s',
+          }}
+        >
+          {loading ? 'SENDING LINK...' : 'GET MAGIC LINK →'}
+        </button>
       </form>
+
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#2a2a2a', letterSpacing: '2px', marginTop: '20px' }}>
+        NO PASSWORD NEEDED
+      </div>
     </div>
   )
 }

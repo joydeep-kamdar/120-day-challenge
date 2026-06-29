@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { dailyLogs } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
+import { calculateBmi } from '@/lib/bmi'
 import type { MoodEmoji } from '@/types'
 
 interface SaveLogInput {
@@ -12,6 +13,11 @@ interface SaveLogInput {
   workoutDone: boolean
   workoutNote: string | null
   moodEmoji: MoodEmoji
+  // Optional measurements
+  weightKg?: number | null
+  waistExtendedCm?: number | null
+  waistSuckedinCm?: number | null
+  heightCm?: number | null
 }
 
 export async function saveDailyLog(input: SaveLogInput) {
@@ -19,6 +25,21 @@ export async function saveDailyLog(input: SaveLogInput) {
   if (!session?.user?.id) return { error: 'Not authenticated' }
 
   const userId = session.user.id
+
+  const bmi =
+    input.weightKg && input.heightCm
+      ? calculateBmi(input.weightKg, input.heightCm)
+      : null
+
+  const values = {
+    workoutDone: input.workoutDone,
+    workoutNote: input.workoutNote,
+    moodEmoji: input.moodEmoji,
+    weightKg: input.weightKg ?? null,
+    waistExtendedCm: input.waistExtendedCm ?? null,
+    waistSuckedinCm: input.waistSuckedinCm ?? null,
+    bmi: bmi ?? null,
+  }
 
   try {
     const existing = await db.query.dailyLogs.findFirst({
@@ -30,22 +51,13 @@ export async function saveDailyLog(input: SaveLogInput) {
     })
 
     if (existing) {
-      await db
-        .update(dailyLogs)
-        .set({
-          workoutDone: input.workoutDone,
-          workoutNote: input.workoutNote,
-          moodEmoji: input.moodEmoji,
-        })
-        .where(eq(dailyLogs.id, existing.id))
+      await db.update(dailyLogs).set(values).where(eq(dailyLogs.id, existing.id))
     } else {
       await db.insert(dailyLogs).values({
         userId,
         challengeId: input.challengeId,
         date: input.date,
-        workoutDone: input.workoutDone,
-        workoutNote: input.workoutNote,
-        moodEmoji: input.moodEmoji,
+        ...values,
       })
     }
 

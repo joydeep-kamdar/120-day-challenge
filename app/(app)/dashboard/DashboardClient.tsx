@@ -2,12 +2,10 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Flame, Zap, Target, Trophy, ChevronRight, Plus } from 'lucide-react'
-import { getBmiLabel, getBmiColor, calculateBmi } from '@/lib/bmi'
-import { getDaysRemaining, getWeekNumber } from '@/lib/streaks'
+import { calculateBmi, getBmiLabel, getBmiColor } from '@/lib/bmi'
+import { getDaysRemaining } from '@/lib/streaks'
 import { getBadgeDefinition } from '@/lib/badges'
 import type { StreakResult } from '@/lib/streaks'
-import { format } from 'date-fns'
 
 interface Props {
   user: { id: string; name: string; image: string | null }
@@ -24,11 +22,7 @@ interface Props {
   weightLost: number
   totalWorkouts: number
   badges: Array<{ badgeType: string; earnedAt: Date }>
-}
-
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
+  hasLoggedToday: boolean
 }
 
 export function DashboardClient({
@@ -41,200 +35,247 @@ export function DashboardClient({
   weightLost,
   totalWorkouts,
   badges,
+  hasLoggedToday,
 }: Props) {
   const startDate = new Date(challenge.startDate)
-  const weekNumber = getWeekNumber(startDate.toISOString().split('T')[0])
+  const startW = profile?.startWeightKg ?? 0
+  const goalW = profile?.goalWeightKg ?? 0
+  const curW = latestCheckin?.weightKg ?? startW
+  const heightCm = profile?.heightCm ?? 0
+  const bmiVal = heightCm > 0 ? calculateBmi(curW, heightCm) : null
+  const bmiColor = bmiVal ? getBmiColor(bmiVal) : '#9ca3af'
+  const wChange = curW - startW
+  const goalDiff = curW - goalW
+  const wChangeStr = wChange <= 0 ? `${wChange.toFixed(1)}kg` : `+${wChange.toFixed(1)}kg`
+  const wChangeColor = wChange <= 0 ? '#22c55e' : '#ef4444'
   const daysRemaining = getDaysRemaining(startDate.toISOString().split('T')[0], challenge.durationDays)
-  const currentBmi = latestCheckin?.bmi ?? (profile ? calculateBmi(profile.startWeightKg, profile.heightCm) : null)
+  const todayPrompt = hasLoggedToday ? 'Workout logged!' : "Log today's check-in"
+  const todaySub = hasLoggedToday ? 'Tap to update' : 'Weight · Waist · Workout · Mood'
+  const todayIcon = hasLoggedToday ? '✅' : '📋'
 
-  const today = format(new Date(), 'yyyy-MM-dd')
-  const hasLoggedToday = false // This would be checked against daily logs
+  const goalBarStyle = {
+    height: '6px',
+    borderRadius: '3px',
+    width: `${progressPercent}%`,
+    background: 'linear-gradient(90deg,#6366f1,#ec4899)',
+    transition: 'width 1s ease',
+    minWidth: progressPercent > 0 ? '4px' : '0',
+  }
 
   return (
-    <div className="space-y-4 py-2">
-      {/* Header */}
-      <motion.div {...fadeUp} transition={{ delay: 0 }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-muted-foreground text-sm">Welcome back 👋</p>
-            <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{ fontFamily: 'var(--font-heading)' }}
-            >
-              {user.name.split(' ')[0]}
-            </h1>
+    <div>
+      {/* Weight hero card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <div
+          style={{
+            background: 'linear-gradient(135deg,#141414,#1a1320)',
+            border: '1px solid rgba(99,102,241,0.2)',
+            borderRadius: '20px',
+            padding: '20px',
+            marginTop: '16px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '-20px',
+              right: '-20px',
+              width: '100px',
+              height: '100px',
+              background: 'radial-gradient(ellipse,rgba(99,102,241,0.2),transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '4px' }}>
+                CURRENT WEIGHT
+              </div>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: '62px', lineHeight: 1, color: '#fff', letterSpacing: '-1px' }}>
+                {curW.toFixed(1)}<span style={{ fontSize: '26px', color: '#444', marginLeft: '4px' }}>kg</span>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right', paddingBottom: '8px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600, color: wChangeColor }}>
+                {wChangeStr}
+              </div>
+              {bmiVal && (
+                <>
+                  <div style={{
+                    background: bmiColor + '1a',
+                    border: `1px solid ${bmiColor}4d`,
+                    borderRadius: '20px',
+                    padding: '4px 10px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    color: bmiColor,
+                    marginTop: '6px',
+                    display: 'inline-block',
+                  }}>
+                    BMI {bmiVal.toFixed(1)}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#555', marginTop: '4px' }}>
+                    {getBmiLabel(bmiVal)}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Week {weekNumber}</p>
-            <p className="text-sm font-semibold text-brand-orange">{daysRemaining}d left</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>START {startW.toFixed(1)}kg</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6366f1' }}>GOAL {goalW.toFixed(1)}kg</div>
           </div>
-        </div>
-      </motion.div>
-
-      {/* Progress bar */}
-      <motion.div {...fadeUp} transition={{ delay: 0.05 }}>
-        <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">{challenge.name}</span>
-            <span className="text-brand-orange font-semibold">{progressPercent}% to goal</span>
-          </div>
-          <div className="h-2.5 rounded-full bg-secondary overflow-hidden">
+          <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
             <motion.div
-              className="h-full rounded-full gradient-orange"
+              style={goalBarStyle}
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
             />
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Day {challenge.durationDays - daysRemaining}</span>
-            <span>{challenge.durationDays} days</span>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', marginTop: '5px', textAlign: 'right' }}>
+            {goalDiff <= 0 ? 'Goal reached! 🎉' : `${goalDiff.toFixed(1)}kg to go`}
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginTop: '16px',
+            paddingTop: '14px',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
+          }}>
+            <span style={{ fontSize: '20px' }}>🔥</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '20px', color: '#f59e0b' }}>
+              {streaks.current} DAY STREAK
+            </span>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats grid */}
-      <motion.div {...fadeUp} transition={{ delay: 0.1 }} className="grid grid-cols-2 gap-3">
-        <StatCard
-          icon={<Flame className="w-5 h-5" style={{ color: 'oklch(0.72 0.22 45)' }} />}
-          label="Current Streak"
-          value={`${streaks.current}d`}
-          sub={`Best: ${streaks.longest}d`}
-          glow="orange"
-        />
-        <StatCard
-          icon={<Zap className="w-5 h-5" style={{ color: 'oklch(0.86 0.27 135)' }} />}
-          label="Workouts"
-          value={totalWorkouts.toString()}
-          sub="Total done"
-          glow="lime"
-        />
-        <StatCard
-          icon={<Target className="w-5 h-5" style={{ color: 'oklch(0.62 0.27 350)' }} />}
-          label="Weight Lost"
-          value={`${weightLost.toFixed(1)}kg`}
-          sub={`${profile?.goalWeightKg ?? '—'}kg goal`}
-          glow="pink"
-        />
-        <StatCard
-          icon={<Trophy className="w-5 h-5" style={{ color: 'oklch(0.65 0.18 250)' }} />}
-          label="BMI"
-          value={currentBmi?.toFixed(1) ?? '—'}
-          sub={currentBmi ? getBmiLabel(currentBmi) : 'No data'}
-          glow="blue"
-          valueColor={currentBmi ? getBmiColor(currentBmi) : undefined}
-        />
-      </motion.div>
-
-      {/* Today's log CTA */}
-      <motion.div {...fadeUp} transition={{ delay: 0.15 }}>
-        <Link href="/log">
-          <div className={`rounded-2xl p-4 border transition-all ${
-            hasLoggedToday
-              ? 'border-brand-lime/30 bg-brand-lime/5'
-              : 'border-brand-orange/30 gradient-card glow-orange'
-          }`}>
-            <div className="flex items-center justify-between">
+      {/* TODAY */}
+      <div className="slabel">TODAY</div>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <Link href="/log" style={{ textDecoration: 'none' }}>
+          <div
+            className="card-base"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', cursor: 'pointer' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ fontSize: '26px' }}>{todayIcon}</div>
               <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Today</p>
-                <p className="font-semibold">
-                  {hasLoggedToday ? '✅ Logged!' : "Log today's workout"}
-                </p>
-                {!hasLoggedToday && (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Keep the streak alive 🔥
-                  </p>
-                )}
-              </div>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                hasLoggedToday ? 'bg-brand-lime/20' : 'gradient-orange'
-              }`}>
-                <Plus className={`w-5 h-5 ${hasLoggedToday ? 'text-brand-lime' : 'text-white'}`} />
+                <div style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, color: '#fff' }}>
+                  {todayPrompt}
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', marginTop: '2px' }}>
+                  {todaySub}
+                </div>
               </div>
             </div>
+            <div style={{ color: '#333', fontSize: '18px' }}>→</div>
           </div>
         </Link>
       </motion.div>
 
-      {/* Weekly check-in */}
-      <motion.div {...fadeUp} transition={{ delay: 0.2 }}>
-        <Link href="/check-in">
-          <div className="rounded-2xl bg-card border border-border p-4 flex items-center justify-between hover:border-brand-pink/40 transition-colors">
-            <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Week {weekNumber}</p>
-              <p className="font-semibold">Weekly Check-in</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {latestCheckin
-                  ? `Last: ${latestCheckin.weightKg}kg on ${latestCheckin.date}`
-                  : 'Log your measurements'}
-              </p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </div>
-        </Link>
-      </motion.div>
-
-      {/* Badges */}
+      {/* BADGES */}
       {badges.length > 0 && (
-        <motion.div {...fadeUp} transition={{ delay: 0.25 }}>
-          <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
-            <p className="font-semibold text-sm">Your Badges</p>
-            <div className="flex flex-wrap gap-2">
-              {badges.slice(0, 8).map((b) => {
-                const def = getBadgeDefinition(b.badgeType as Parameters<typeof getBadgeDefinition>[0])
-                return (
-                  <div
-                    key={b.badgeType}
-                    className="flex flex-col items-center gap-1 w-16"
-                    title={def.description}
-                  >
-                    <span className="text-2xl">{def.emoji}</span>
-                    <span className="text-[10px] text-muted-foreground text-center leading-tight">
-                      {def.label}
-                    </span>
+        <>
+          <div className="slabel">BADGES</div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}
+          >
+            {badges.slice(0, 8).map((b) => {
+              const def = getBadgeDefinition(b.badgeType as Parameters<typeof getBadgeDefinition>[0])
+              return (
+                <div
+                  key={b.badgeType}
+                  style={{
+                    background: 'rgba(99,102,241,0.12)',
+                    border: '1px solid rgba(99,102,241,0.25)',
+                    borderRadius: '12px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    minWidth: '72px',
+                  }}
+                >
+                  <div style={{ fontSize: '22px' }}>{def.emoji}</div>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, color: '#fff', marginTop: '4px' }}>
+                    {def.label}
                   </div>
-                )
-              })}
+                </div>
+              )
+            })}
+          </motion.div>
+        </>
+      )}
+
+      {/* SQUAD STANDINGS */}
+      <div className="slabel">SQUAD STANDINGS</div>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <div
+          className="card-base"
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px' }}
+        >
+          <div style={{ fontSize: '18px', width: '26px', textAlign: 'center' }}>🥇</div>
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              background: 'rgba(99,102,241,0.15)',
+              border: '2px solid #6366f1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'var(--font-display)',
+              fontSize: '14px',
+              fontWeight: 700,
+              color: '#818cf8',
+              flexShrink: 0,
+            }}
+          >
+            {user.name.charAt(0)}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: '#fff' }}>
+              {user.name.split(' ')[0]}
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>
+              🔥 {streaks.current}d · {totalWorkouts} workouts
             </div>
           </div>
-        </motion.div>
-      )}
-    </div>
-  )
-}
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: '#22c55e' }}>
+            -{Math.max(0, weightLost).toFixed(1)}kg
+          </div>
+        </div>
+        <div style={{ marginTop: '8px', textAlign: 'center' }}>
+          <Link
+            href="/group"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              color: '#6366f1',
+              letterSpacing: '1px',
+              textDecoration: 'none',
+            }}
+          >
+            SEE FULL LEADERBOARD →
+          </Link>
+        </div>
+      </motion.div>
 
-function StatCard({
-  icon,
-  label,
-  value,
-  sub,
-  glow,
-  valueColor,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  sub: string
-  glow: 'orange' | 'lime' | 'pink' | 'blue'
-  valueColor?: string
-}) {
-  const glowClass = {
-    orange: 'hover:glow-orange hover:border-brand-orange/40',
-    lime: 'hover:glow-lime hover:border-brand-lime/40',
-    pink: 'hover:glow-pink hover:border-brand-pink/40',
-    blue: 'hover:border-brand-blue/40',
-  }[glow]
-
-  return (
-    <div className={`rounded-2xl bg-card border border-border p-4 transition-all ${glowClass}`}>
-      <div className="flex items-center gap-2 mb-2">{icon}<span className="text-xs text-muted-foreground">{label}</span></div>
-      <p
-        className="text-2xl font-bold tracking-tight"
-        style={{ fontFamily: 'var(--font-heading)', color: valueColor }}
-      >
-        {value}
-      </p>
-      <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>
+      {/* Bottom spacer */}
+      <div style={{ height: '32px' }} />
     </div>
   )
 }

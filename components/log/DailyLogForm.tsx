@@ -3,14 +3,13 @@
 import { useState, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MoodPicker } from './MoodPicker'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { CheckCircle, Dumbbell } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { calculateBmi } from '@/lib/bmi'
+import { useRouter } from 'next/navigation'
 import type { MoodEmoji } from '@/types'
 import { saveDailyLog } from '@/app/actions/log'
+
+const MOODS: MoodEmoji[] = ['😤', '💪', '🔥', '😊', '😅', '⚡', '🤙', '😴']
 
 interface Props {
   challengeId: string
@@ -18,21 +17,35 @@ interface Props {
     workoutDone: boolean
     workoutNote: string | null
     moodEmoji: string
+    weightKg?: number | null
+    waistExtendedCm?: number | null
+    waistSuckedinCm?: number | null
   } | null
   today: string
+  heightCm: number | null
 }
 
-export function DailyLogForm({ challengeId, existingLog, today }: Props) {
+export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Props) {
+  const router = useRouter()
   const [workoutDone, setWorkoutDone] = useState(existingLog?.workoutDone ?? false)
   const [note, setNote] = useState(existingLog?.workoutNote ?? '')
   const [mood, setMood] = useState<MoodEmoji | null>((existingLog?.moodEmoji as MoodEmoji) ?? null)
-  const [saved, setSaved] = useState(false)
+  const [weight, setWeight] = useState(existingLog?.weightKg?.toString() ?? '')
+  const [waistExt, setWaistExt] = useState(existingLog?.waistExtendedCm?.toString() ?? '')
+  const [waistIn, setWaistIn] = useState(existingLog?.waistSuckedinCm?.toString() ?? '')
   const [isPending, startTransition] = useTransition()
+
+  const parsedWeight = parseFloat(weight)
+  const liveBmi = parsedWeight > 0 && heightCm ? calculateBmi(parsedWeight, heightCm) : null
+
+  const todayStr = new Date(today + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric',
+  }).toUpperCase()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!mood) {
-      toast.error('Pick your mood for today!')
+      toast.error('Pick your mood first!')
       return
     }
 
@@ -43,6 +56,10 @@ export function DailyLogForm({ challengeId, existingLog, today }: Props) {
         workoutDone,
         workoutNote: note.trim() || null,
         moodEmoji: mood,
+        weightKg: parsedWeight > 0 ? parsedWeight : null,
+        waistExtendedCm: parseFloat(waistExt) > 0 ? parseFloat(waistExt) : null,
+        waistSuckedinCm: parseFloat(waistIn) > 0 ? parseFloat(waistIn) : null,
+        heightCm,
       })
 
       if (result.error) {
@@ -50,114 +67,191 @@ export function DailyLogForm({ challengeId, existingLog, today }: Props) {
         return
       }
 
-      setSaved(true)
-      toast.success(workoutDone ? '💪 Workout logged! Streak alive!' : "Log saved! Tomorrow's a new day.")
+      toast.success(workoutDone ? 'Crushed it! 💪' : 'Check-in saved!')
+      router.push('/dashboard')
     })
   }
 
-  if (saved) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center justify-center text-center py-12 space-y-4"
-      >
-        <div className="w-20 h-20 rounded-full gradient-orange glow-orange flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-white" />
-        </div>
-        <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-          {workoutDone ? 'Beast mode! 🔥' : 'Day logged!'}
-        </h2>
-        <p className="text-muted-foreground text-sm max-w-xs">
-          {workoutDone
-            ? 'Your workout is in the books. The crew can see you crushed it.'
-            : "Rest is part of the game. You showed up — that's what counts."}
-        </p>
-        <Button
-          onClick={() => setSaved(false)}
-          variant="outline"
-          className="rounded-xl border-border mt-2"
-        >
-          Edit today&apos;s log
-        </Button>
-      </motion.div>
-    )
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Workout toggle */}
-      <div className="space-y-3">
-        <Label className="text-base font-semibold">Did you workout today?</Label>
-        <button
-          type="button"
-          onClick={() => setWorkoutDone(!workoutDone)}
-          className={cn(
-            'w-full rounded-2xl border-2 p-5 transition-all duration-200 flex items-center gap-4',
-            workoutDone
-              ? 'border-brand-lime bg-brand-lime/10 glow-lime'
-              : 'border-border bg-card hover:border-muted-foreground/40'
-          )}
-        >
-          <div className={cn(
-            'w-14 h-14 rounded-xl flex items-center justify-center transition-all',
-            workoutDone ? 'gradient-lime' : 'bg-secondary'
-          )}>
-            <Dumbbell className={cn('w-7 h-7', workoutDone ? 'text-white' : 'text-muted-foreground')} />
-          </div>
-          <div className="text-left">
-            <p className="font-semibold text-lg">
-              {workoutDone ? '✅ Yes, I crushed it!' : 'Tap to mark done'}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {workoutDone ? 'Streak builder 🔥' : 'No workout today'}
-            </p>
-          </div>
-        </button>
+    <form onSubmit={handleSubmit}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', padding: '20px 0 4px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '34px', letterSpacing: '2px', color: '#fff' }}>
+          TODAY&apos;S LOG
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3a3a3a', letterSpacing: '2px' }}>
+          {todayStr}
+        </div>
       </div>
 
-      {/* Note */}
+      {/* HOW YOU FEELING? */}
+      <div className="slabel">HOW YOU FEELING?</div>
+      <div className="card-base" style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', padding: '14px' }}>
+        {MOODS.map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMood(m)}
+            style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '22px',
+              cursor: 'pointer',
+              background: mood === m ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.05)',
+              border: mood === m ? '2px solid #6366f1' : '2px solid transparent',
+              transform: mood === m ? 'scale(1.15)' : 'scale(1)',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+            }}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {/* WORKOUT */}
+      <div className="slabel">WORKOUT</div>
+      <button
+        type="button"
+        onClick={() => setWorkoutDone(!workoutDone)}
+        style={{
+          width: '100%',
+          padding: '20px',
+          borderRadius: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          fontSize: '17px',
+          fontWeight: 700,
+          fontFamily: 'var(--font-sans)',
+          cursor: 'pointer',
+          border: 'none',
+          transition: 'all 0.2s',
+          background: workoutDone ? 'linear-gradient(135deg,#22c55e,#16a34a)' : 'rgba(255,255,255,0.06)',
+          color: workoutDone ? '#fff' : '#555',
+          boxShadow: workoutDone ? '0 0 25px rgba(34,197,94,0.35)' : 'none',
+        }}
+      >
+        <span style={{ fontSize: '22px' }}>{workoutDone ? '✅' : '○'}</span>
+        <span>{workoutDone ? 'WORKOUT COMPLETE!' : 'TAP TO LOG WORKOUT'}</span>
+      </button>
+
       <AnimatePresence>
         {workoutDone && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="space-y-2 overflow-hidden"
+            style={{ overflow: 'hidden' }}
           >
-            <Label htmlFor="note" className="text-sm font-medium">
-              What did you do? <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Textarea
-              id="note"
-              placeholder="5km run, leg day, HIIT... whatever you crushed"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={2}
-              className="rounded-xl bg-secondary border-border resize-none"
-            />
+            <div
+              className="card-base"
+              style={{ border: '1px solid rgba(34,197,94,0.2)', padding: '14px', marginTop: '10px' }}
+            >
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '8px' }}>
+                WORKOUT NOTE
+              </div>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="What did you crush today?"
+                style={{
+                  width: '100%',
+                  fontSize: '15px',
+                  resize: 'none',
+                  height: '56px',
+                  lineHeight: 1.5,
+                  color: '#fff',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Mood */}
-      <div className="space-y-3">
-        <Label className="text-base font-semibold">How are you feeling?</Label>
-        <MoodPicker value={mood} onChange={setMood} />
+      {/* MEASUREMENTS */}
+      <div className="slabel">MEASUREMENTS</div>
+      <div className="card-base" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+            WEIGHT kg {liveBmi && <span style={{ color: '#6366f1' }}>· BMI {liveBmi.toFixed(1)}</span>}
+          </div>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.1"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="e.g. 84.5"
+            style={{ fontSize: '20px', fontWeight: 600, width: '100%', color: '#fff', background: 'transparent', border: 'none', outline: 'none' }}
+          />
+        </div>
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+            WAIST EXTENDED cm
+          </div>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.1"
+            value={waistExt}
+            onChange={(e) => setWaistExt(e.target.value)}
+            placeholder="e.g. 92.0"
+            style={{ fontSize: '20px', fontWeight: 600, width: '100%', color: '#fff', background: 'transparent', border: 'none', outline: 'none' }}
+          />
+        </div>
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+        <div>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+            WAIST SUCKED IN cm
+          </div>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.1"
+            value={waistIn}
+            onChange={(e) => setWaistIn(e.target.value)}
+            placeholder="e.g. 88.0"
+            style={{ fontSize: '20px', fontWeight: 600, width: '100%', color: '#fff', background: 'transparent', border: 'none', outline: 'none' }}
+          />
+        </div>
       </div>
 
-      <Button
+      {/* SAVE */}
+      <button
         type="submit"
         disabled={isPending || !mood}
-        className="w-full h-12 gradient-orange text-white font-semibold rounded-xl border-0 hover:opacity-90 transition-opacity"
+        style={{
+          marginTop: '16px',
+          width: '100%',
+          padding: '18px',
+          background: isPending || !mood ? 'rgba(99,102,241,0.3)' : 'linear-gradient(135deg,#6366f1,#ec4899)',
+          borderRadius: '14px',
+          textAlign: 'center',
+          cursor: isPending || !mood ? 'not-allowed' : 'pointer',
+          fontFamily: 'var(--font-display)',
+          fontSize: '22px',
+          letterSpacing: '2px',
+          color: '#fff',
+          boxShadow: isPending || !mood ? 'none' : '0 8px 30px rgba(99,102,241,0.3)',
+          border: 'none',
+          transition: 'all 0.2s',
+        }}
       >
-        {isPending ? (
-          <span className="flex items-center gap-2">
-            <span className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-            Saving...
-          </span>
-        ) : existingLog ? 'Update log' : 'Save log'}
-      </Button>
+        {isPending ? 'SAVING...' : 'SAVE LOG ✓'}
+      </button>
+
+      <div style={{ height: '32px' }} />
     </form>
   )
 }

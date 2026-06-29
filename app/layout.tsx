@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter, Bebas_Neue, JetBrains_Mono } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
@@ -9,10 +9,18 @@ const inter = Inter({
   display: 'swap',
 })
 
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-heading',
+const bebasNeue = Bebas_Neue({
+  variable: '--font-display',
+  weight: '400',
   subsets: ['latin'],
   display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-mono',
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['400', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -31,21 +39,29 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#0A0F1E',
+  viewportFit: 'cover',
+  themeColor: '#0a0a0a',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${bebasNeue.variable} ${jetbrainsMono.variable} h-full`}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh bg-background text-foreground antialiased">
         {children}
         <Toaster
           position="top-center"
           toastOptions={{
             style: {
-              background: 'oklch(0.14 0.025 245)',
-              border: '1px solid oklch(0.22 0.025 245)',
-              color: 'oklch(0.96 0 0)',
+              background: 'linear-gradient(135deg, #6366f1, #ec4899)',
+              border: 'none',
+              color: '#fff',
+              fontWeight: 600,
+              borderRadius: '24px',
+              boxShadow: '0 8px 30px rgba(99,102,241,0.45)',
             },
           }}
         />

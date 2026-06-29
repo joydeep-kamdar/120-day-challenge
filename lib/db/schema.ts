@@ -98,6 +98,11 @@ export const dailyLogs = pgTable('daily_logs', {
   workoutDone: boolean('workout_done').notNull().default(false),
   workoutNote: text('workout_note'),
   moodEmoji: text('mood_emoji').notNull(),
+  // Optional daily measurements (combined into one log per the design)
+  weightKg: real('weight_kg'),
+  waistExtendedCm: real('waist_extended_cm'),
+  waistSuckedinCm: real('waist_suckedin_cm'),
+  bmi: real('bmi'),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }, (t) => [unique().on(t.userId, t.challengeId, t.date)])
 

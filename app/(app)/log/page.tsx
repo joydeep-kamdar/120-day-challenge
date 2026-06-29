@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { DailyLogForm } from '@/components/log/DailyLogForm'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs } from '@/lib/db/schema'
+import { challengeMembers, dailyLogs, userProfiles } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { format } from 'date-fns'
 
@@ -13,10 +13,15 @@ export default async function LogPage() {
   const userId = session.user.id
   const today = format(new Date(), 'yyyy-MM-dd')
 
-  const membership = await db.query.challengeMembers.findFirst({
-    where: eq(challengeMembers.userId, userId),
-    with: { challenge: true },
-  })
+  const [membership, profile] = await Promise.all([
+    db.query.challengeMembers.findFirst({
+      where: eq(challengeMembers.userId, userId),
+      with: { challenge: true },
+    }),
+    db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, userId),
+    }),
+  ])
 
   if (!membership) redirect('/dashboard')
 
@@ -29,20 +34,11 @@ export default async function LogPage() {
   })
 
   return (
-    <div className="py-2">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-          Daily Log
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {format(new Date(), 'EEEE, MMM d')}
-        </p>
-      </div>
-      <DailyLogForm
-        challengeId={membership.challengeId}
-        existingLog={todayLog ?? null}
-        today={today}
-      />
-    </div>
+    <DailyLogForm
+      challengeId={membership.challengeId}
+      existingLog={todayLog ?? null}
+      today={today}
+      heightCm={profile?.heightCm ?? null}
+    />
   )
 }

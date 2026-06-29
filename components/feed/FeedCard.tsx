@@ -2,10 +2,20 @@
 
 import { useState, useTransition } from 'react'
 import { formatDistanceToNow } from 'date-fns'
-import { cn } from '@/lib/utils'
 import { addReaction } from '@/app/actions/reactions'
 
-const QUICK_REACTIONS = ['🔥', '💪', '👊', '🎯', '⚡']
+const REACTIONS = [
+  { emoji: '🔥', label: 'rxFire' },
+  { emoji: '❤️', label: 'rxHeart' },
+  { emoji: '💪', label: 'rxFlex' },
+]
+
+// Color pool — stable per-user-name initial
+const USER_COLORS = ['#6366f1', '#ec4899', '#22c55e', '#f59e0b', '#3b82f6', '#a855f7']
+function userColor(name: string | null) {
+  const idx = (name?.charCodeAt(0) ?? 0) % USER_COLORS.length
+  return USER_COLORS[idx]
+}
 
 interface Props {
   log: {
@@ -23,105 +33,118 @@ interface Props {
   challengeId: string
 }
 
-export function FeedCard({ log, currentUserId, challengeId }: Props) {
+export function FeedCard({ log, currentUserId }: Props) {
   const [localReactions, setLocalReactions] = useState(log.reactions)
   const [isPending, startTransition] = useTransition()
 
-  const reactionCounts = QUICK_REACTIONS.reduce<Record<string, number>>((acc, emoji) => {
-    acc[emoji] = localReactions.filter(r => r.emoji === emoji).length
-    return acc
-  }, {})
-
   const myReaction = localReactions.find(r => r.fromUserId === currentUserId)
+  const color = userColor(log.user.name)
+  const initial = log.user.name?.charAt(0).toUpperCase() ?? '?'
+
+  const relTime = (() => {
+    try { return formatDistanceToNow(log.createdAt, { addSuffix: true }) } catch { return log.date }
+  })()
 
   function handleReact(emoji: string) {
     startTransition(async () => {
-      const optimistic = { id: 'temp', fromUserId: currentUserId, emoji }
       setLocalReactions(prev => {
         const filtered = prev.filter(r => r.fromUserId !== currentUserId)
         if (myReaction?.emoji === emoji) return filtered
-        return [...filtered, optimistic]
+        return [...filtered, { id: 'opt', fromUserId: currentUserId, emoji }]
       })
-
       await addReaction({ logId: log.id, emoji })
     })
   }
 
   return (
-    <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
+    <div className="card-base" style={{ padding: '14px', marginTop: '10px' }}>
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Avatar user={log.user} />
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">
-            {log.user.name ?? 'Someone'}
-            {log.userId === currentUserId && (
-              <span className="ml-1 text-xs text-muted-foreground">(you)</span>
-            )}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {formatDistanceToNow(log.createdAt, { addSuffix: true })}
-          </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {log.user.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={log.user.image}
+              alt={log.user.name ?? ''}
+              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${color}`, flexShrink: 0 }}
+            />
+          ) : (
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '50%',
+              background: color + '22', border: `2px solid ${color}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700, color,
+              flexShrink: 0,
+            }}>
+              {initial}
+            </div>
+          )}
+          <div>
+            <div style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, color: '#fff' }}>
+              {log.user.name ?? 'Someone'}
+              {log.userId === currentUserId && (
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', marginLeft: '6px' }}>(you)</span>
+              )}
+            </div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>{relTime}</div>
+          </div>
         </div>
-        <span className="text-2xl">{log.moodEmoji}</span>
+        <div style={{ fontSize: '22px' }}>{log.moodEmoji}</div>
       </div>
 
-      {/* Content */}
-      <div className={cn(
-        'rounded-xl p-3 text-sm',
-        log.workoutDone ? 'bg-brand-lime/10 border border-brand-lime/20' : 'bg-secondary'
-      )}>
-        {log.workoutDone ? (
-          <div className="space-y-1">
-            <p className="font-semibold text-brand-lime">✅ Workout done!</p>
-            {log.workoutNote && (
-              <p className="text-muted-foreground">{log.workoutNote}</p>
-            )}
+      {/* Badges */}
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+        {log.workoutDone && (
+          <div style={{
+            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: '20px', padding: '3px 10px',
+            fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#22c55e',
+          }}>
+            Workout Done ✓
           </div>
-        ) : (
-          <p className="text-muted-foreground">Rest day</p>
         )}
       </div>
 
+      {/* Note */}
+      {log.workoutNote && (
+        <div style={{
+          fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#666',
+          marginBottom: '10px', padding: '8px 10px',
+          background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+        }}>
+          {log.workoutNote}
+        </div>
+      )}
+
       {/* Reactions */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {QUICK_REACTIONS.map(emoji => {
-          const count = reactionCounts[emoji] ?? 0
-          const isActive = myReaction?.emoji === emoji
+      <div style={{ display: 'flex', gap: '6px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        {REACTIONS.map(({ emoji }) => {
+          const count = localReactions.filter(r => r.emoji === emoji).length
+          const active = myReaction?.emoji === emoji
           return (
             <button
               key={emoji}
               onClick={() => handleReact(emoji)}
               disabled={isPending}
-              className={cn(
-                'flex items-center gap-1 px-2.5 py-1 rounded-full text-sm border transition-all',
-                isActive
-                  ? 'border-brand-orange bg-brand-orange/15 scale-105'
-                  : count > 0
-                  ? 'border-border bg-secondary'
-                  : 'border-transparent hover:border-border hover:bg-secondary'
-              )}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                padding: '5px 10px',
+                background: active ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
+                border: active ? '1px solid rgba(99,102,241,0.4)' : '1px solid transparent',
+                borderRadius: '20px',
+                cursor: 'pointer',
+                fontSize: '13px',
+                transition: 'all 0.15s',
+              }}
             >
-              <span>{emoji}</span>
-              {count > 0 && <span className="text-xs text-muted-foreground">{count}</span>}
+              {emoji}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#555' }}>
+                {count || ''}
+              </span>
             </button>
           )
         })}
       </div>
-    </div>
-  )
-}
-
-function Avatar({ user }: { user: { name: string | null; image: string | null } }) {
-  if (user.image) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={user.image} alt={user.name ?? ''} className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0" />
-    )
-  }
-  return (
-    <div className="w-9 h-9 rounded-full gradient-orange flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-      {user.name?.charAt(0).toUpperCase() ?? '?'}
     </div>
   )
 }

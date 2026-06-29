@@ -2,69 +2,109 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Users, Flame, BarChart2, MessageCircleHeart } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
-const NAV_ITEMS = [
-  { href: '/dashboard', icon: Home, label: 'Home' },
-  { href: '/group', icon: Users, label: 'Crew' },
-  { href: '/log', icon: Flame, label: 'Log', primary: true },
-  { href: '/charts', icon: BarChart2, label: 'Stats' },
-  { href: '/coach', icon: MessageCircleHeart, label: 'Coach' },
+const NAV = [
+  { href: '/dashboard', emoji: '⌂', label: 'HOME' },
+  { href: '/charts', emoji: '📊', label: 'STATS' },
+  { href: '/log', emoji: '✏️', label: 'LOG', primary: true },
+  { href: '/group', emoji: '👥', label: 'SQUAD' },
+  { href: '/coach', emoji: '💋', label: 'COACH' },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm safe-bottom">
-      <div className="flex items-center justify-around px-2 pt-2 pb-1 max-w-lg mx-auto">
-        {NAV_ITEMS.map(({ href, icon: Icon, label, primary }) => {
-          const active = pathname === href || pathname.startsWith(`${href}/`)
+    <nav
+      style={{
+        display: 'flex',
+        background: 'rgba(10,10,10,0.97)',
+        backdropFilter: 'blur(12px)',
+        borderTop: '1px solid rgba(255,255,255,0.07)',
+        paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+        paddingTop: '0',
+      }}
+    >
+      {NAV.map(({ href, emoji, label, primary }) => {
+        const active = pathname === href || pathname.startsWith(`${href}/`)
+        if (primary) {
           return (
             <Link
               key={href}
               href={href}
-              className="flex flex-col items-center gap-0.5 min-w-[56px] py-1"
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                textDecoration: 'none',
+              }}
             >
-              {primary ? (
-                <span
-                  className={cn(
-                    'flex items-center justify-center w-12 h-12 rounded-2xl transition-all',
-                    active
-                      ? 'gradient-orange glow-orange'
-                      : 'bg-secondary hover:bg-secondary/80'
-                  )}
-                >
-                  <Icon className={cn('w-5 h-5', active ? 'text-white' : 'text-muted-foreground')} />
-                </span>
-              ) : (
-                <span
-                  className={cn(
-                    'flex items-center justify-center w-10 h-10 rounded-xl transition-all',
-                    active && 'bg-primary/10'
-                  )}
-                >
-                  <Icon
-                    className={cn(
-                      'w-5 h-5 transition-colors',
-                      active ? 'text-brand-orange' : 'text-muted-foreground'
-                    )}
-                  />
-                </span>
-              )}
-              <span
-                className={cn(
-                  'text-[10px] font-medium transition-colors',
-                  active ? 'text-brand-orange' : 'text-muted-foreground'
-                )}
+              <div
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#6366f1,#ec4899)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '22px',
+                  boxShadow: '0 4px 18px rgba(99,102,241,0.4)',
+                  marginTop: '-14px',
+                }}
+              >
+                {emoji}
+              </div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '9px',
+                  letterSpacing: '1px',
+                  color: '#555',
+                  marginTop: '4px',
+                }}
               >
                 {label}
-              </span>
+              </div>
             </Link>
           )
-        })}
-      </div>
+        }
+
+        return (
+          <Link
+            key={href}
+            href={href}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '3px',
+              padding: '8px 4px',
+              cursor: 'pointer',
+              textDecoration: 'none',
+              color: active ? '#6366f1' : '#555',
+              opacity: active ? 1 : 0.45,
+              transform: active ? 'translateY(-1px)' : 'none',
+              transition: 'all 0.2s',
+            }}
+          >
+            <div style={{ fontSize: '20px' }}>{emoji}</div>
+            <div
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '9px',
+                letterSpacing: '1px',
+              }}
+            >
+              {label}
+            </div>
+          </Link>
+        )
+      })}
     </nav>
   )
 }
