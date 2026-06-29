@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>120 Day Challenge — Feature Specs & Build Tracker</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --card: #141414;
+    --border: rgba(255,255,255,0.06);
+    --indigo: #6366f1;
+    --pink: #ec4899;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --text: #e5e7eb;
+    --muted: #6b7280;
+    --gradient: linear-gradient(135deg, #6366f1, #ec4899);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px 80px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  /* Header */
+  .hero {
+    text-align: center;
+    padding: 48px 0 40px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 200px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-title {
+    font-family: 'Courier New', monospace;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .hero-sub {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 24px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--card);
+    transition: all .2s;
+  }
+  .hero-link:hover { border-color: var(--indigo); color: #fff; }
+  /* Status pills */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .pill-green { background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--green); }
+  .pill-amber { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.3); color: var(--amber); }
+  .pill-red { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: var(--red); }
+  .pill-blue { background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.3); color: var(--indigo); }
+  /* Section headers */
+  h2 {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 48px 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  /* Summary bar */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Courier New', monospace;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    font-family: 'Courier New', monospace;
+  }
+  /* Feature table */
+  .feature-group {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .feature-group-header {
+    padding: 16px 20px;
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .feature-group-title {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: start;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-name { font-weight: 500; color: #e5e7eb; margin-bottom: 2px; }
+  .feature-desc { font-size: 12px; color: var(--muted); }
+  /* Env var table */
+  .env-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .env-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    background: rgba(255,255,255,.02);
+    border-bottom: 1px solid var(--border);
+  }
+  .env-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .env-table tr:last-child td { border-bottom: none; }
+  .env-name {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--indigo);
+  }
+  .env-where { font-size: 12px; color: var(--muted); }
+  /* Schema table */
+  .schema-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .schema-table th {
+    text-align: left;
+    padding: 8px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    background: rgba(255,255,255,.02);
+    border-bottom: 1px solid var(--border);
+  }
+  .schema-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.03);
+    font-family: 'Courier New', monospace;
+  }
+  .schema-table tr:last-child td { border-bottom: none; }
+  .col-name { color: #e5e7eb; }
+  .col-type { color: var(--indigo); }
+  .col-note { color: var(--muted); font-family: 'Segoe UI', sans-serif; }
+  /* Design tokens section */
+  .tokens {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .token-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .token-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .token-name { font-size: 11px; font-family: 'Courier New', monospace; color: var(--muted); letter-spacing: 1px; }
+  .token-val { font-size: 13px; font-family: 'Courier New', monospace; color: #fff; }
+  /* Blockers */
+  .blocker-card {
+    background: rgba(239,68,68,.05);
+    border: 1px solid rgba(239,68,68,.2);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+  .blocker-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+  .blocker-title { font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .blocker-desc { font-size: 12px; color: var(--muted); }
+  /* Decisions */
+  .decision-card {
+    background: rgba(245,158,11,.05);
+    border: 1px solid rgba(245,158,11,.2);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+  .decision-label {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--amber);
+    margin-bottom: 6px;
+  }
+  /* Info box */
+  .info-box {
+    background: rgba(99,102,241,.06);
+    border: 1px solid rgba(99,102,241,.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .info-box strong { color: var(--indigo); }
+  /* Responsive */
+  @media (max-width: 600px) {
+    body { padding: 24px 16px 60px; }
+    .hero-title { font-size: 32px; }
+    .summary { grid-template-columns: repeat(2, 1fr); }
+    .feature-row { grid-template-columns: 1fr; }
+  }
+  /* Print */
+  @media print {
+    body { background: #fff; color: #111; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-title">120 DAY CHALLENGE</div>
+  <div class="hero-sub">FEATURE SPECS &amp; BUILD TRACKER</div>
+  <div class="hero-meta">
+    <a class="hero-link" href="https://github.com/joydeep-kamdar/120-day-challenge">⚡ GitHub</a>
+    <a class="hero-link" href="https://120-day-challenge.vercel.app">🚀 Production</a>
+    <a class="hero-link" href="https://vercel.com/ziggy-projects/120-day-challenge">▲ Vercel</a>
+    <span class="pill pill-green">● LIVE</span>
+  </div>
+</div>
+
+<!-- ===== SUMMARY STATS ===== -->
+<div class="summary">
+  <div class="stat-card">
+    <div class="stat-num" style="color: var(--green)">18</div>
+    <div class="stat-label">BUILT ✅</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color: var(--amber)">5</div>
+    <div class="stat-label">IN PROGRESS 🔄</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color: var(--indigo)">8</div>
+    <div class="stat-label">PLANNED 📋</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="color: var(--red)">4</div>
+    <div class="stat-label">BLOCKED ⛔</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" style="background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">34</div>
+    <div class="stat-label">TESTS PASSING</div>
+  </div>
+</div>
+
+<!-- ===== BLOCKED: WHAT'S NEEDED NOW ===== -->
+<h2>🚨 Blocked — Credentials Needed From You</h2>
+
+<p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">
+  These features are coded and deployed but <strong style="color: #fff">will not work</strong> until you supply the following environment variables in the Vercel dashboard and in <code style="font-size: 11px; color: var(--indigo); background: rgba(99,102,241,.1); padding: 2px 6px; border-radius: 4px;">.env.local</code> for local development.
+</p>
+
+<div class="blocker-card">
+  <div class="blocker-label">BLOCKER 1 — SIGN IN</div>
+  <div class="blocker-title">AUTH_RESEND_KEY + EMAIL_FROM</div>
+  <div class="blocker-desc">
+    Magic link emails can't be sent without a Resend API key and a verified sender domain.
+    Get the key at <strong>resend.com/api-keys</strong>. The EMAIL_FROM must use a domain you own and have verified in Resend (e.g. <em>noreply@yourdomain.com</em>).<br><br>
+    <strong>Alternative:</strong> We can swap to Google OAuth instead (see Open Decisions below) — simpler for a friend group, no domain needed.
+  </div>
+</div>
+
+<div class="blocker-card">
+  <div class="blocker-label">BLOCKER 2 — COACH ZARA AI</div>
+  <div class="blocker-title">ANTHROPIC_API_KEY</div>
+  <div class="blocker-desc">
+    Coach Zara calls Claude Haiku (<code>claude-haiku-4-5-20251001</code>) via the Anthropic API. Without this key the /coach page will return a 500 error.
+    Get it at <strong>console.anthropic.com/api-keys</strong>.
+  </div>
+</div>
+
+<div class="blocker-card">
+  <div class="blocker-label">BLOCKER 3 — PHOTO UPLOADS</div>
+  <div class="blocker-title">BLOB_READ_WRITE_TOKEN</div>
+  <div class="blocker-desc">
+    Profile photos and progress photos upload to Vercel Blob. In Vercel dashboard → Storage → Create a Blob store → Link to this project. The token is auto-added to your Vercel env vars, then copy it to <code>.env.local</code> for local dev.
+  </div>
+</div>
+
+<div class="blocker-card">
+  <div class="blocker-label">BLOCKER 4 — GOOGLE OAUTH (if switching from magic links)</div>
+  <div class="blocker-title">GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET</div>
+  <div class="blocker-desc">
+    Only needed if we switch from Resend magic links to Google Sign-In (recommended — see Open Decisions). Create an OAuth 2.0 Client ID at <strong>console.cloud.google.com</strong> → APIs &amp; Services → Credentials → Web application. Add redirect URI: <code>https://120-day-challenge.vercel.app/api/auth/callback/google</code>
+  </div>
+</div>
+
+<!-- ===== OPEN DECISIONS ===== -->
+<h2>🤔 Open Decisions — Need Your Input</h2>
+
+<div class="decision-card">
+  <div class="decision-label">DECISION 1 — AUTH STRATEGY</div>
+  <h3>Magic Links (Resend) vs. Google OAuth</h3>
+  <p style="font-size: 13px; color: var(--muted); margin-top: 6px;">
+    <strong style="color: #fff">Current:</strong> Resend magic link emails. Requires: a verified custom domain + Resend API key. Elegant, passwordless.<br>
+    <strong style="color: #fff">Alternative:</strong> Google Sign-In. Requires: a Google Cloud project (free). Simpler setup — everyone has a Google account. The v2 design prototype uses Google OAuth.<br>
+    <strong style="color: var(--amber)">Recommendation:</strong> Switch to Google OAuth. It's what the design uses, no domain needed, and easier for the squad.
+  </p>
+</div>
+
+<div class="decision-card">
+  <div class="decision-label">DECISION 2 — CHALLENGE START DATE</div>
+  <h3>When does the 120 days begin?</h3>
+  <p style="font-size: 13px; color: var(--muted); margin-top: 6px;">
+    The app currently computes "Day N of 120" from the challenge's <code>startDate</code> field. We need you to confirm: <strong style="color: #fff">what date did the challenge start?</strong> (or when should it start?) This determines which day number is shown in the top bar and progress calculations.
+  </p>
+</div>
+
+<div class="decision-card">
+  <div class="decision-label">DECISION 3 — SQUAD INVITE FLOW</div>
+  <h3>How do new members join?</h3>
+  <p style="font-size: 13px; color: var(--muted); margin-top: 6px;">
+    Built: challenge creation with an invite link. You create a challenge → share the invite URL → friends click it → they join.
+    Do you want to pre-populate the squad (e.g. you create it and manually add members), or do they need to self-join via the invite link?
+  </p>
+</div>
+
+<!-- ===== FEATURE TRACKER ===== -->
+<h2>📋 Feature Tracker</h2>
+
+<!-- AUTH -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">🔐 AUTH &amp; ONBOARDING</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Magic Link Sign-In (Resend)</div>
+      <div class="feature-desc">Email-based passwordless auth via Auth.js v5 + Resend. Login page built with gradient hero. Suspense-wrapped for Next.js prerender.</div>
+    </div>
+    <span class="pill pill-amber">🔄 Coded, blocked</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Google OAuth Sign-In</div>
+      <div class="feature-desc">Sign in with Google button. Planned for v2. Would replace or augment Resend magic links.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Session management</div>
+      <div class="feature-desc">Auth.js session with DrizzleAdapter persisting sessions to Neon DB. Protected routes via middleware.ts.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Profile setup (new users)</div>
+      <div class="feature-desc">After sign-in, new users enter name, height, start weight, goal weight, and profile photo before entering the app.</div>
+    </div>
+    <span class="pill pill-amber">🔄 In progress</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Challenge creation &amp; invite link</div>
+      <div class="feature-desc">Founder creates a challenge → unique invite URL → squad members click to join. challengeId scoped to all data.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- NAVIGATION & SHELL -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">🧭 APP SHELL &amp; NAVIGATION</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Top bar — day counter + avatar</div>
+      <div class="feature-desc">"120 DAY CHALLENGE" in gradient Bebas Neue + "DAY N OF 120" in JetBrains Mono. Avatar links to profile. Server component.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Bottom navigation bar</div>
+      <div class="feature-desc">HOME | STATS | LOG (floating gradient circle) | SQUAD | COACH. Fixed, centered, 430px max-width.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Refresh button (↻) in header</div>
+      <div class="feature-desc">Client-side button to re-sync data from the server. Shown in v2 design for live data refresh.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Mobile-first layout (430px cap)</div>
+      <div class="feature-desc">App constrained to 430px, centered on desktop. Pure black background. No horizontal scroll.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">🏠 HOME / DASHBOARD</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Weight hero card</div>
+      <div class="feature-desc">Big current weight in 62px Bebas Neue. BMI pill (color-coded). Progress bar from start → goal (indigo→pink gradient).</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Streak display</div>
+      <div class="feature-desc">Current workout streak with 🔥 emoji. Calculated from consecutive workout days up to today.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Today's log card</div>
+      <div class="feature-desc">Tappable card to go to /log. Shows different state if already logged today (✅ Workout logged!) vs not (📋 Log today's check-in).</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Badges section</div>
+      <div class="feature-desc">Achievement badges earned based on streak + weight milestones. Shown on dashboard. Badge logic: badges.ts</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Squad standings preview</div>
+      <div class="feature-desc">Mini leaderboard (top 3) on dashboard with kg lost and streak. Taps through to full /group leaderboard.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- DAILY LOG -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">📝 DAILY LOG (combined check-in)</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Mood picker — 8 emojis</div>
+      <div class="feature-desc">😤 💪 🔥 😊 😅 ⚡ 🤙 😴 — horizontal row of 44px circles, indigo ring on selected.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Workout toggle button</div>
+      <div class="feature-desc">Large tap target — grey "TAP TO LOG WORKOUT" → green gradient "WORKOUT COMPLETE!" with glow. Workout note textarea appears when active.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Measurements — weight, waist</div>
+      <div class="feature-desc">Weight (kg) with live BMI preview. Waist extended (cm). Waist sucked-in (cm). Numeric input, mobile keypad.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Auto BMI calculation</div>
+      <div class="feature-desc">BMI computed server-side from weight + user's height. Stored in daily_logs. Color coded: green (normal), amber (overweight), red (obese).</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Upsert — edit today's log</div>
+      <div class="feature-desc">Saving a second log on the same day updates (not duplicates) the existing record. UNIQUE(user_id, date) enforced in DB.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Pre-fill from yesterday's data</div>
+      <div class="feature-desc">On opening the log form, weight field pre-filled with last known weight. Makes daily entry faster.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- STATS / CHARTS -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">📊 STATS &amp; CHARTS</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Weight chart (AreaChart)</div>
+      <div class="feature-desc">Recharts AreaChart with indigo (#6366f1) gradient fill. Shows all weight entries from daily logs. SVG path, no axes clutter.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Waist chart (dual line)</div>
+      <div class="feature-desc">Pink (#ec4899) lines — extended (solid) and sucked-in (dashed). Side-by-side trend comparison.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">BMI chart (AreaChart)</div>
+      <div class="feature-desc">Green (#22c55e) AreaChart. Horizontal reference lines at BMI 25 (overweight) and 30 (obese).</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Streak calendar (6-week grid)</div>
+      <div class="feature-desc">42-cell calendar grid (M–S headers). Green cells = workout done. Indigo ring = today. Future cells transparent.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">My stats grid</div>
+      <div class="feature-desc">Summary cards: total workouts, current streak, weight lost, waist change. JetBrains Mono numbers.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- SQUAD / GROUP -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">👥 SQUAD</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Group feed (last 7 days)</div>
+      <div class="feature-desc">Activity cards from all squad members sorted by date. Shows mood emoji, workout status, weight badge. Tap to react.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Emoji reactions (🔥 ❤️ 💪)</div>
+      <div class="feature-desc">Toggle reactions on any feed item. Your reaction highlighted in indigo. Count shown next to each emoji.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Leaderboard tab</div>
+      <div class="feature-desc">Rank by kg lost. Shows rank medal (🥇🥈🥉), avatar, streak, total workouts, BMI. Your row highlighted in indigo.</div>
+    </div>
+    <span class="pill pill-amber">🔄 In progress</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">📸 Photos tab</div>
+      <div class="feature-desc">Weekly progress photo wall. Each week: front photo + side photo slots. Tap to upload. Uses Vercel Blob. Per-user scrollable view.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">User color avatars</div>
+      <div class="feature-desc">Each squad member gets an assigned color (#6366f1, #ec4899, #22c55e, #f59e0b…). Initial avatar with color border + tinted background.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- COACH ZARA -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">💋 COACH ZARA (AI)</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">AI coach chat (Claude Haiku)</div>
+      <div class="feature-desc">/api/coach route. System prompt: flirty female coach character. Context-aware: knows your streak, weight change, today's workout. Coded + deployed.</div>
+    </div>
+    <span class="pill pill-amber">🔄 Coded, blocked</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Coach Zara gifts / milestones</div>
+      <div class="feature-desc">3 tiered unlock gifts: 💌 7-day streak, 🎯 -3kg (special challenge), 🏆 30-day streak + -5kg (big reveal). Flirty personal messages on unlock.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Coach context — streak + weight data</div>
+      <div class="feature-desc">Coach receives current streak, total weight lost, last workout status. Makes responses feel personal and encouraging.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">👤 PROFILE</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Profile page</div>
+      <div class="feature-desc">View/edit name, height, start weight, goal weight. Upload profile photo to Vercel Blob.</div>
+    </div>
+    <span class="pill pill-amber">🔄 In progress</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Profile photo upload</div>
+      <div class="feature-desc">Upload avatar to Vercel Blob. Shown in top bar and squad feed. Blocked until BLOB_READ_WRITE_TOKEN is set.</div>
+    </div>
+    <span class="pill pill-amber">🔄 Coded, blocked</span>
+  </div>
+</div>
+
+<!-- TECH / INFRA -->
+<div class="feature-group">
+  <div class="feature-group-header">
+    <span class="feature-group-title">⚙️ TECH &amp; INFRASTRUCTURE</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Database — Neon PostgreSQL + Drizzle ORM</div>
+      <div class="feature-desc">Schema pushed to Neon (ep-little-cloud-atvxx7yr). Drizzle for type-safe queries. Pooled connection for runtime, unpooled for migrations.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Vercel deployment + CI</div>
+      <div class="feature-desc">Auto-deploys from GitHub main branch. Team: ziggy-projects. DATABASE_URL auto-synced from Neon integration.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">Unit test suite (Vitest)</div>
+      <div class="feature-desc">34 tests covering BMI calculation, streak algorithm, badge logic. All passing. jsdom environment.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+
+  <div class="feature-row">
+    <div>
+      <div class="feature-name">TypeScript strict types throughout</div>
+      <div class="feature-desc">All components, server actions, lib functions fully typed. MoodEmoji union, DbUser, Challenge interfaces in types/index.ts.</div>
+    </div>
+    <span class="pill pill-green">✅ Built</span>
+  </div>
+</div>
+
+<!-- ===== DATABASE SCHEMA ===== -->
+<h2>🗄️ Database Schema</h2>
+
+<div class="info-box">
+  The app uses <strong>Drizzle ORM</strong> with <strong>Neon PostgreSQL</strong>. Schema is in <code>lib/db/schema.ts</code>. Push changes with <code>npm run db:push</code>.
+</div>
+
+<div style="display: grid; gap: 16px;">
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">users</span>
+      <span class="pill pill-green">via Auth.js DrizzleAdapter</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT PK</td><td class="col-note">UUID, managed by Auth.js</td></tr>
+      <tr><td class="col-name">name</td><td class="col-type">TEXT</td><td class="col-note">Display name</td></tr>
+      <tr><td class="col-name">email</td><td class="col-type">TEXT UNIQUE</td><td class="col-note">Used for magic link auth</td></tr>
+      <tr><td class="col-name">emailVerified</td><td class="col-type">TIMESTAMP</td><td class="col-note">Set on first magic link click</td></tr>
+      <tr><td class="col-name">image</td><td class="col-type">TEXT</td><td class="col-note">Profile photo URL (Vercel Blob)</td></tr>
+    </table>
+  </div>
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">user_profiles</span>
+      <span class="pill pill-green">fitness-specific user data</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">userId</td><td class="col-type">TEXT FK</td><td class="col-note">References users.id</td></tr>
+      <tr><td class="col-name">heightCm</td><td class="col-type">REAL</td><td class="col-note">For BMI calculation</td></tr>
+      <tr><td class="col-name">startWeightKg</td><td class="col-type">REAL</td><td class="col-note">Baseline weight</td></tr>
+      <tr><td class="col-name">goalWeightKg</td><td class="col-type">REAL</td><td class="col-note">Target weight for progress bar</td></tr>
+      <tr><td class="col-name">color</td><td class="col-type">TEXT</td><td class="col-note">Accent color for avatar (#6366f1 etc.)</td></tr>
+    </table>
+  </div>
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">challenges</span>
+      <span class="pill pill-green">multi-squad support</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT PK</td><td class="col-note">UUID</td></tr>
+      <tr><td class="col-name">name</td><td class="col-type">TEXT</td><td class="col-note">Challenge display name</td></tr>
+      <tr><td class="col-name">startDate</td><td class="col-type">DATE</td><td class="col-note">Day 1 — determines "Day N of 120"</td></tr>
+      <tr><td class="col-name">inviteCode</td><td class="col-type">TEXT UNIQUE</td><td class="col-note">Short code for invite link</td></tr>
+      <tr><td class="col-name">createdBy</td><td class="col-type">TEXT FK</td><td class="col-note">Founder userId</td></tr>
+    </table>
+  </div>
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">daily_logs</span>
+      <span class="pill pill-green">core daily entry</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT PK</td><td class="col-note">UUID</td></tr>
+      <tr><td class="col-name">userId</td><td class="col-type">TEXT FK</td><td class="col-note">Who logged</td></tr>
+      <tr><td class="col-name">challengeId</td><td class="col-type">TEXT FK</td><td class="col-note">Which challenge</td></tr>
+      <tr><td class="col-name">date</td><td class="col-type">TEXT</td><td class="col-note">YYYY-MM-DD. UNIQUE(userId, challengeId, date)</td></tr>
+      <tr><td class="col-name">workoutDone</td><td class="col-type">BOOLEAN</td><td class="col-note">Main streak driver</td></tr>
+      <tr><td class="col-name">workoutNote</td><td class="col-type">TEXT</td><td class="col-note">Optional workout description</td></tr>
+      <tr><td class="col-name">moodEmoji</td><td class="col-type">TEXT</td><td class="col-note">One of 8 mood emojis</td></tr>
+      <tr><td class="col-name">weightKg</td><td class="col-type">REAL</td><td class="col-note">Daily weight entry</td></tr>
+      <tr><td class="col-name">waistExtendedCm</td><td class="col-type">REAL</td><td class="col-note">Relaxed waist measurement</td></tr>
+      <tr><td class="col-name">waistSuckedinCm</td><td class="col-type">REAL</td><td class="col-note">Sucked-in waist measurement</td></tr>
+      <tr><td class="col-name">bmi</td><td class="col-type">REAL</td><td class="col-note">Auto-calculated on save</td></tr>
+    </table>
+  </div>
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">reactions</span>
+      <span class="pill pill-green">emoji reactions on logs</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT PK</td><td class="col-note">UUID</td></tr>
+      <tr><td class="col-name">logId</td><td class="col-type">TEXT FK</td><td class="col-note">References daily_logs.id</td></tr>
+      <tr><td class="col-name">userId</td><td class="col-type">TEXT FK</td><td class="col-note">Who reacted</td></tr>
+      <tr><td class="col-name">emoji</td><td class="col-type">TEXT</td><td class="col-note">🔥 | ❤️ | 💪. UNIQUE(logId, userId, emoji)</td></tr>
+    </table>
+  </div>
+
+  <div class="feature-group">
+    <div class="feature-group-header">
+      <span class="feature-group-title">photos</span>
+      <span class="pill pill-blue">📋 table exists, UI planned</span>
+    </div>
+    <table class="schema-table">
+      <tr><th>COLUMN</th><th>TYPE</th><th>NOTES</th></tr>
+      <tr><td class="col-name">id</td><td class="col-type">TEXT PK</td><td class="col-note">UUID</td></tr>
+      <tr><td class="col-name">userId</td><td class="col-type">TEXT FK</td><td class="col-note">Photo owner</td></tr>
+      <tr><td class="col-name">challengeId</td><td class="col-type">TEXT FK</td><td class="col-note">Which challenge</td></tr>
+      <tr><td class="col-name">weekNumber</td><td class="col-type">INTEGER</td><td class="col-note">1–17 (120 days ÷ 7). UNIQUE(userId, weekNumber, photoType)</td></tr>
+      <tr><td class="col-name">photoType</td><td class="col-type">TEXT</td><td class="col-note">'front' | 'side'</td></tr>
+      <tr><td class="col-name">url</td><td class="col-type">TEXT</td><td class="col-note">Vercel Blob URL</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ===== DESIGN SYSTEM ===== -->
+<h2>🎨 Design System</h2>
+
+<div class="info-box">
+  The <strong>Aidan Kamdar design system</strong>. Pure black base, indigo/pink gradient accent. Three fonts: <strong>Bebas Neue</strong> (display headings), <strong>JetBrains Mono</strong> (labels, numbers, tags), <strong>Inter</strong> (body text).
+</div>
+
+<div class="tokens">
+  <div class="token-card">
+    <div class="token-swatch" style="background: #0a0a0a; border: 1px solid rgba(255,255,255,.1);"></div>
+    <div>
+      <div class="token-name">--background</div>
+      <div class="token-val">#0a0a0a</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #141414; border: 1px solid rgba(255,255,255,.06);"></div>
+    <div>
+      <div class="token-name">--card</div>
+      <div class="token-val">#141414</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #6366f1;"></div>
+    <div>
+      <div class="token-name">--indigo (primary)</div>
+      <div class="token-val">#6366f1</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #ec4899;"></div>
+    <div>
+      <div class="token-name">--pink (accent)</div>
+      <div class="token-val">#ec4899</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: linear-gradient(135deg, #6366f1, #ec4899);"></div>
+    <div>
+      <div class="token-name">--gradient</div>
+      <div class="token-val">indigo → pink</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #22c55e;"></div>
+    <div>
+      <div class="token-name">--green (success)</div>
+      <div class="token-val">#22c55e</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #f59e0b;"></div>
+    <div>
+      <div class="token-name">--amber (warning)</div>
+      <div class="token-val">#f59e0b</div>
+    </div>
+  </div>
+  <div class="token-card">
+    <div class="token-swatch" style="background: #ef4444;"></div>
+    <div>
+      <div class="token-name">--red (danger)</div>
+      <div class="token-val">#ef4444</div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-family: 'Courier New', monospace; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #fff; margin-bottom: 4px; line-height: 1;">BEBAS NEUE</div>
+    <div style="font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; letter-spacing: 1px;">--font-display<br>headings &amp; hero text</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700; color: #6366f1; margin-bottom: 4px; letter-spacing: 1px; line-height: 1.3;">JETBRAINS<br>MONO</div>
+    <div style="font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; letter-spacing: 1px;">--font-mono<br>labels &amp; numbers</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 18px; font-weight: 600; color: #e5e7eb; margin-bottom: 4px; line-height: 1.3;">Inter</div>
+    <div style="font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; letter-spacing: 1px;">--font-sans<br>body &amp; descriptions</div>
+  </div>
+</div>
+
+<!-- ===== ENV VARS ===== -->
+<h2>🔑 Environment Variables</h2>
+
+<div class="feature-group">
+  <table class="env-table">
+    <tr>
+      <th>VARIABLE</th>
+      <th>STATUS</th>
+      <th>WHERE TO GET IT</th>
+    </tr>
+    <tr>
+      <td><div class="env-name">DATABASE_URL</div></td>
+      <td><span class="pill pill-green">✅ Set</span></td>
+      <td class="env-where">Auto-synced from Neon ↔ Vercel integration</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">DATABASE_URL_UNPOOLED</div></td>
+      <td><span class="pill pill-green">✅ Set</span></td>
+      <td class="env-where">Auto-synced. Used by drizzle-kit for migrations only</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">AUTH_SECRET</div></td>
+      <td><span class="pill pill-green">✅ Set</span></td>
+      <td class="env-where">Generated — already in Vercel + .env.local</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">AUTH_URL</div></td>
+      <td><span class="pill pill-green">✅ Set</span></td>
+      <td class="env-where">https://120-day-challenge.vercel.app (prod) / http://localhost:3000 (local)</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">AUTH_RESEND_KEY</div></td>
+      <td><span class="pill pill-red">⛔ Missing</span></td>
+      <td class="env-where">resend.com/api-keys → Create API key</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">EMAIL_FROM</div></td>
+      <td><span class="pill pill-red">⛔ Missing</span></td>
+      <td class="env-where">Must be a verified sender domain in Resend (e.g. noreply@yourdomain.com)</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">ANTHROPIC_API_KEY</div></td>
+      <td><span class="pill pill-red">⛔ Missing</span></td>
+      <td class="env-where">console.anthropic.com/api-keys → Create key</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">BLOB_READ_WRITE_TOKEN</div></td>
+      <td><span class="pill pill-red">⛔ Missing</span></td>
+      <td class="env-where">Vercel dashboard → Storage → Blob → Create store → Link to project. Auto-added.</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">GOOGLE_CLIENT_ID</div></td>
+      <td><span class="pill pill-amber">📋 Planned</span></td>
+      <td class="env-where">console.cloud.google.com → Credentials → OAuth 2.0 Client ID (if switching auth)</td>
+    </tr>
+    <tr>
+      <td><div class="env-name">GOOGLE_CLIENT_SECRET</div></td>
+      <td><span class="pill pill-amber">📋 Planned</span></td>
+      <td class="env-where">Same as above — pair with GOOGLE_CLIENT_ID</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ===== TECH STACK ===== -->
+<h2>🛠️ Tech Stack</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">FRAMEWORK</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Next.js 16.2.9 (App Router)</div>
+    <div style="font-size: 12px; color: var(--muted);">Server components, server actions, route handlers. params is a Promise — always await.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">DATABASE</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Neon PostgreSQL + Drizzle ORM</div>
+    <div style="font-size: 12px; color: var(--muted);">Serverless-friendly. Pooled connection at runtime. drizzle-kit for schema migrations.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">AUTH</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Auth.js v5 (next-auth@beta)</div>
+    <div style="font-size: 12px; color: var(--muted);">Resend magic links + DrizzleAdapter. Google provider planned. Sessions in DB.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">AI</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Anthropic Claude Haiku 4.5</div>
+    <div style="font-size: 12px; color: var(--muted);">Coach Zara. Model: claude-haiku-4-5-20251001. Context-aware, streamed responses.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">STORAGE</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Vercel Blob</div>
+    <div style="font-size: 12px; color: var(--muted);">Profile photos + progress photos. Direct browser upload. Needs BLOB_READ_WRITE_TOKEN.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">STYLING</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Tailwind CSS v4 + inline styles</div>
+    <div style="font-size: 12px; color: var(--muted);">@theme inline, CSS custom properties. Inline styles for pixel-perfect design system match.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">CHARTS</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Recharts</div>
+    <div style="font-size: 12px; color: var(--muted);">AreaChart, LineChart. SVG-based, responsive. Custom colors matching design tokens.</div>
+  </div>
+  <div class="feature-group" style="padding: 16px 20px;">
+    <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 8px;">TESTING</div>
+    <div style="font-weight: 600; color: #fff; margin-bottom: 2px;">Vitest + jsdom</div>
+    <div style="font-size: 12px; color: var(--muted);">34 tests. Unit coverage: BMI, streaks, badges. Run: npm test.</div>
+  </div>
+</div>
+
+<!-- ===== ROADMAP ===== -->
+<h2>🗺️ Suggested Build Order</h2>
+
+<div class="feature-group">
+  <div class="feature-row">
+    <div>
+      <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--indigo); letter-spacing: 1px; margin-bottom: 4px;">PHASE 1 — UNBLOCK AUTH (immediate)</div>
+      <div class="feature-name">Get the app working end-to-end</div>
+      <div class="feature-desc">Supply ANTHROPIC_API_KEY + BLOB_READ_WRITE_TOKEN. Then decide: keep magic links (supply AUTH_RESEND_KEY + EMAIL_FROM) OR switch to Google OAuth (supply GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET). Once auth works, onboarding and data entry are fully usable.</div>
+    </div>
+    <span class="pill pill-red">⛔ Blocked</span>
+  </div>
+  <div class="feature-row">
+    <div>
+      <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--amber); letter-spacing: 1px; margin-bottom: 4px;">PHASE 2 — COMPLETE IN-PROGRESS</div>
+      <div class="feature-name">Profile page + Leaderboard</div>
+      <div class="feature-desc">Finish profile setup flow for new users. Complete the leaderboard tab in /group — rank by kg lost, show streaks and workouts.</div>
+    </div>
+    <span class="pill pill-amber">🔄 In progress</span>
+  </div>
+  <div class="feature-row">
+    <div>
+      <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--indigo); letter-spacing: 1px; margin-bottom: 4px;">PHASE 3 — PHOTO WALL</div>
+      <div class="feature-name">📸 Photos tab in SQUAD</div>
+      <div class="feature-desc">Add third tab to group screen. Weekly grid: front + side photo slots. Upload to Vercel Blob. View any member's progress. Requires BLOB_READ_WRITE_TOKEN.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+  <div class="feature-row">
+    <div>
+      <div style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--indigo); letter-spacing: 1px; margin-bottom: 4px;">PHASE 4 — COACH ZARA GIFTS</div>
+      <div class="feature-name">Milestone unlock system</div>
+      <div class="feature-desc">3 locked gift cards on /coach screen. Unlock animations. Flirty personal messages from Zara at 7-day streak, -3kg, and 30-day streak + -5kg milestones.</div>
+    </div>
+    <span class="pill pill-blue">📋 Planned</span>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div style="margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); text-align: center;">
+  <div style="font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 3px; color: var(--muted);">
+    120 DAY CHALLENGE · SPECS v2 · LAST UPDATED 2026-06-29
+  </div>
+  <div style="margin-top: 8px; font-size: 12px; color: #333;">
+    Built by <a href="https://github.com/joydeep-kamdar" style="color: var(--indigo); text-decoration: none;">joydeep-kamdar</a> with Claude Code
+  </div>
+</div>
+
+</body>
+</html>
