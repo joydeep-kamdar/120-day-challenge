@@ -322,8 +322,13 @@ export function DashboardClient({
                     🔥 {member.streak}d · {member.totalWorkouts} workouts
                   </div>
                 </div>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: member.weightLost > 0 ? '#22c55e' : '#555' }}>
-                  {member.weightLost > 0 ? `-${member.weightLost.toFixed(1)}` : '0.0'}kg
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: member.weightLost > 0 ? '#22c55e' : '#9ca3af' }}>
+                    {member.weightLost > 0 ? `-${member.weightLost.toFixed(1)}kg` : '—'}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#6b7280', letterSpacing: '1px' }}>
+                    LOST
+                  </div>
                 </div>
               </div>
             )

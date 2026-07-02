@@ -7,22 +7,21 @@ export interface StreakResult {
 }
 
 export function calculateStreaks(logs: DailyLog[]): StreakResult {
-  const workoutDates = new Set(
-    logs.filter((l) => l.workoutDone).map((l) => l.date)
-  )
+  // Streak = consecutive days with ANY log entry (showing up counts, not just workouts)
+  const logDates = new Set(logs.map((l) => l.date))
 
-  if (workoutDates.size === 0) return { current: 0, longest: 0 }
+  if (logDates.size === 0) return { current: 0, longest: 0 }
 
   const today = format(new Date(), 'yyyy-MM-dd')
   const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
 
-  const sorted = Array.from(workoutDates).sort().reverse()
+  const sorted = Array.from(logDates).sort().reverse()
 
   let current = 0
-  if (workoutDates.has(today) || workoutDates.has(yesterday)) {
-    const startFrom = workoutDates.has(today) ? today : yesterday
+  if (logDates.has(today) || logDates.has(yesterday)) {
+    const startFrom = logDates.has(today) ? today : yesterday
     let checkDate = parseISO(startFrom)
-    while (workoutDates.has(format(checkDate, 'yyyy-MM-dd'))) {
+    while (logDates.has(format(checkDate, 'yyyy-MM-dd'))) {
       current++
       checkDate = subDays(checkDate, 1)
     }

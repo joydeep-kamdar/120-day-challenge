@@ -1,22 +1,22 @@
 import { auth } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { challengeMembers } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
 import Link from 'next/link'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export async function TopBar() {
   const session = await auth()
 
+  let challengeName = '120 DAY CHALLENGE'
   let dayNum = 1
+  let durationDays = 120
+
   if (session?.user?.id) {
-    const membership = await db.query.challengeMembers.findFirst({
-      where: eq(challengeMembers.userId, session.user.id),
-      with: { challenge: true },
-    })
+    const { membership } = await getActiveMembership(session.user.id)
     if (membership?.challenge?.startDate) {
-      const start = new Date(membership.challenge.startDate)
-      const diff = Math.floor((Date.now() - start.getTime()) / 86400000)
-      dayNum = Math.min(120, Math.max(1, diff + 1))
+      const c = membership.challenge
+      challengeName = c.name.toUpperCase()
+      durationDays = c.durationDays
+      const diff = Math.floor((Date.now() - new Date(c.startDate).getTime()) / 86400000)
+      dayNum = Math.min(durationDays, Math.max(1, diff + 1))
     }
   }
 
@@ -41,7 +41,7 @@ export async function TopBar() {
         margin: '0 auto',
       }}
     >
-      <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+      <Link href="/dashboard" style={{ textDecoration: 'none', minWidth: 0, flex: 1, marginRight: '12px' }}>
         <div
           style={{
             fontFamily: 'var(--font-display)',
@@ -51,9 +51,12 @@ export async function TopBar() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
-          120 DAY CHALLENGE
+          {challengeName}
         </div>
         <div
           style={{
@@ -63,11 +66,11 @@ export async function TopBar() {
             letterSpacing: '2px',
           }}
         >
-          DAY {dayNum} OF 120
+          DAY {dayNum} OF {durationDays}
         </div>
       </Link>
 
-      <Link href={`/profile/${session?.user?.id ?? ''}`}>
+      <Link href={`/profile/${session?.user?.id ?? ''}`} style={{ flexShrink: 0 }}>
         {session?.user?.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -94,7 +97,6 @@ export async function TopBar() {
               justifyContent: 'center',
               fontFamily: 'var(--font-display)',
               fontSize: '16px',
-              fontWeight: '700',
               color: '#818cf8',
             }}
           >
