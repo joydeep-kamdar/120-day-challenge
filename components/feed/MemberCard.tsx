@@ -1,62 +1,101 @@
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
-import { getBmiLabel, getBmiColor } from '@/lib/bmi'
 
 interface Props {
-  member: {
-    userId: string
-    user: {
-      id: string
-      name: string | null
-      image: string | null
-      profile: { startWeightKg: number; goalWeightKg: number } | null
-    }
-  }
+  userId: string
+  name: string
+  image: string | null
   isCurrentUser: boolean
-  latestCheckin: { weightKg: number; bmi: number; weekNumber: number } | null
+  totalLogs: number
+  thisWeekCount: number
+  loggedToday: boolean
+  workedOutToday: boolean
+  currentStreak: number
+  latestWeight: number | null
 }
 
-export function MemberCard({ member, isCurrentUser, latestCheckin }: Props) {
-  return (
-    <Link href={`/profile/${member.userId}`}>
-      <div className="rounded-2xl bg-card border border-border p-4 flex items-center gap-3 hover:border-brand-orange/30 transition-colors">
-        {/* Avatar */}
-        {member.user.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={member.user.image}
-            alt={member.user.name ?? ''}
-            className="w-12 h-12 rounded-full object-cover border border-border flex-shrink-0"
-          />
-        ) : (
-          <div className="w-12 h-12 rounded-full gradient-orange flex items-center justify-center text-white font-bold flex-shrink-0">
-            {member.user.name?.charAt(0).toUpperCase() ?? '?'}
-          </div>
-        )}
+export function MemberCard({
+  userId, name, image, isCurrentUser,
+  totalLogs, thisWeekCount, loggedToday, workedOutToday, currentStreak, latestWeight,
+}: Props) {
+  const initial = name.charAt(0).toUpperCase()
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold truncate">{member.user.name ?? 'Anonymous'}</p>
-            {isCurrentUser && (
-              <span className="text-xs bg-brand-orange/20 text-brand-orange px-1.5 py-0.5 rounded-full">you</span>
-            )}
-          </div>
-          {latestCheckin ? (
-            <p className="text-sm text-muted-foreground">
-              {latestCheckin.weightKg}kg ·{' '}
-              <span style={{ color: getBmiColor(latestCheckin.bmi) }}>
-                BMI {latestCheckin.bmi.toFixed(1)}
-              </span>
-              {' · '}Week {latestCheckin.weekNumber}
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">No check-in yet</p>
+  const inner = (
+    <div
+      style={{
+        background: isCurrentUser ? 'rgba(99,102,241,0.06)' : '#141414',
+        border: isCurrentUser ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
+        borderRadius: '16px',
+        padding: '14px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '14px',
+      }}
+    >
+      {/* Avatar */}
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image} alt={name} style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(99,102,241,0.4)', flexShrink: 0 }} />
+      ) : (
+        <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '20px', color: '#818cf8', flexShrink: 0 }}>
+          {initial}
+        </div>
+      )}
+
+      {/* Info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, color: '#fff' }}>
+            {name.split(' ')[0]}
+          </span>
+          {isCurrentUser && (
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '1px', color: '#6366f1', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '6px', padding: '2px 6px' }}>
+              YOU
+            </span>
           )}
         </div>
 
-        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Today status */}
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: loggedToday ? (workedOutToday ? '#22c55e' : '#f59e0b') : '#3a3a3a', letterSpacing: '1px' }}>
+            {loggedToday ? (workedOutToday ? '✅ today' : '📝 today') : '💤 today'}
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>·</span>
+          {/* This week */}
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#555', letterSpacing: '1px' }}>
+            {thisWeekCount}/7 this week
+          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>·</span>
+          {/* Total */}
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#555', letterSpacing: '1px' }}>
+            {totalLogs} total
+          </span>
+        </div>
       </div>
+
+      {/* Right side: streak + weight (or arrow for self) */}
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#f59e0b', fontWeight: 600 }}>
+          🔥 {currentStreak}d
+        </div>
+        {latestWeight && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', marginTop: '2px' }}>
+            {latestWeight.toFixed(1)}kg
+          </div>
+        )}
+        {isCurrentUser && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6366f1', marginTop: '2px' }}>
+            LOG →
+          </div>
+        )}
+      </div>
+    </div>
+  )
+
+  return isCurrentUser ? (
+    <Link href="/log" style={{ textDecoration: 'none' }}>
+      {inner}
     </Link>
+  ) : (
+    <div>{inner}</div>
   )
 }

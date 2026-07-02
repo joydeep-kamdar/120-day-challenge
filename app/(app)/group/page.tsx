@@ -1,9 +1,10 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs, weeklyCheckins, users, userProfiles, reactions } from '@/lib/db/schema'
-import { eq, and, desc, inArray } from 'drizzle-orm'
+import { challengeMembers, dailyLogs } from '@/lib/db/schema'
+import { eq, and, inArray, desc } from 'drizzle-orm'
 import { GroupFeedClient } from './GroupFeedClient'
+import { calculateStreaks } from '@/lib/streaks'
 
 export const revalidate = 30
 
@@ -21,59 +22,65 @@ export default async function GroupPage() {
   if (!membership) redirect('/dashboard')
 
   const challengeId = membership.challengeId
+  const today = new Date().toISOString().split('T')[0]
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
 
-  // Get all members of this challenge
+  // All members with user info
   const members = await db.query.challengeMembers.findMany({
     where: eq(challengeMembers.challengeId, challengeId),
-    with: {
-      user: {
-        with: { profile: true },
-      },
-    },
+    with: { user: true },
   })
 
-  const memberIds = members.map((m) => m.userId)
+  const memberIds = members.map(m => m.userId)
 
-  // Get recent daily logs with reactions
-  const recentLogs = await db.query.dailyLogs.findMany({
+  // All logs for this challenge (for feed + stats)
+  const allLogs = await db.query.dailyLogs.findMany({
     where: and(
       eq(dailyLogs.challengeId, challengeId),
       inArray(dailyLogs.userId, memberIds)
     ),
-    orderBy: [desc(dailyLogs.createdAt)],
-    limit: 30,
-    with: {
-      user: true,
-      reactions: true,
-    },
+    orderBy: [desc(dailyLogs.date)],
+    with: { user: true, reactions: true },
   })
 
-  // Get recent check-ins
-  const recentCheckins = await db.query.weeklyCheckins.findMany({
-    where: and(
-      eq(weeklyCheckins.challengeId, challengeId),
-      inArray(weeklyCheckins.userId, memberIds)
-    ),
-    orderBy: [desc(weeklyCheckins.createdAt)],
-    limit: 10,
-    with: { user: true },
+  // Per-member stats
+  const memberStats = members.map(m => {
+    const logs = allLogs.filter(l => l.userId === m.userId)
+    const streaks = calculateStreaks(logs as Parameters<typeof calculateStreaks>[0])
+    const todayLog = logs.find(l => l.date === today)
+    const thisWeekLogs = logs.filter(l => l.date >= weekAgo)
+    const latestWeight = logs.find(l => l.weightKg != null)?.weightKg ?? null
+
+    return {
+      userId: m.userId,
+      name: m.user.name ?? 'Member',
+      image: m.user.image ?? null,
+      totalLogs: logs.length,
+      thisWeekCount: thisWeekLogs.length,
+      loggedToday: !!todayLog,
+      workedOutToday: todayLog?.workoutDone ?? false,
+      currentStreak: streaks.current,
+      latestWeight,
+    }
   })
+
+  // Feed: last 7 days of logs
+  const feedLogs = allLogs.filter(l => l.date >= weekAgo)
 
   return (
-    <div className="py-2">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-          The Crew
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {members.length} members · {membership.challenge.name}
-        </p>
+    <div style={{ paddingTop: '8px' }}>
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '2px', color: '#fff', lineHeight: 1 }}>
+          {membership.challenge.name.toUpperCase()}
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '2px', marginTop: '4px' }}>
+          {members.length} MEMBERS · DAY 30 OF 120
+        </div>
       </div>
       <GroupFeedClient
         currentUserId={userId}
-        members={members}
-        recentLogs={recentLogs}
-        recentCheckins={recentCheckins}
+        memberStats={memberStats}
+        feedLogs={feedLogs as Parameters<typeof GroupFeedClient>[0]['feedLogs']}
         challengeId={challengeId}
       />
     </div>
