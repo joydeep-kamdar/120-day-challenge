@@ -5,7 +5,7 @@ import { WeightChart } from '@/components/charts/WeightChart'
 import { WaistChart } from '@/components/charts/WaistChart'
 import { BMIChart } from '@/components/charts/BMIChart'
 import { StreakCalendar } from '@/components/charts/StreakCalendar'
-import { getStreakDatesForCalendar } from '@/lib/streaks'
+import { getStreakDatesForCalendar, calculateStreaks } from '@/lib/streaks'
 
 interface Log {
   date: string
@@ -59,6 +59,17 @@ export function ChartsClient({ logs, goals }: Props) {
   }))
 
   const workoutsTotal = logs.filter(l => l.workoutDone).length
+  const streaks = calculateStreaks(logs as Parameters<typeof calculateStreaks>[0])
+
+  // Derived first/last values per metric
+  const firstWeight = weightData[0]?.weightKg ?? null
+  const lastWeight  = weightData[weightData.length - 1]?.weightKg ?? null
+  const firstWaistExt  = waistData[0]?.waistExtendedCm ?? null
+  const lastWaistExt   = waistData[waistData.length - 1]?.waistExtendedCm ?? null
+  const firstWaistIn   = waistData[0]?.waistSuckedinCm ?? null
+  const lastWaistIn    = waistData[waistData.length - 1]?.waistSuckedinCm ?? null
+  const firstBmi = bmiData[0]?.bmi ?? null
+  const lastBmi  = bmiData[bmiData.length - 1]?.bmi ?? null
 
   return (
     <div>
@@ -105,36 +116,66 @@ export function ChartsClient({ logs, goals }: Props) {
       {tab === 'BMI' && <BMIChart data={bmiData} goalBmi={goals.bmi} />}
       {tab === 'Streak' && <StreakCalendar streakDates={streakDates} />}
 
-      {/* MY STATS grid */}
+      {/* MY STATS — tab-contextual */}
       <div className="slabel">MY STATS</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        <div className="card-base" style={{ padding: '14px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>LOGS</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: '#fff', marginTop: '2px' }}>{logs.length}</div>
-        </div>
-        <div className="card-base" style={{ padding: '14px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>WORKOUTS</div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: '#22c55e', marginTop: '2px' }}>{workoutsTotal}</div>
-        </div>
-        {weightData.length >= 2 && (
+
+        {tab === 'Weight' && (
           <>
-            <div className="card-base" style={{ padding: '14px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>STARTED</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: '#fff', marginTop: '2px' }}>
-                {weightData[0].weightKg.toFixed(1)}kg
-              </div>
-            </div>
-            <div className="card-base" style={{ padding: '14px' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>CURRENT</div>
-              <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: '#6366f1', marginTop: '2px' }}>
-                {weightData[weightData.length - 1].weightKg.toFixed(1)}kg
-              </div>
-            </div>
+            <StatCard label="STARTED" value={firstWeight != null ? `${firstWeight.toFixed(1)}kg` : '—'} color="#fff" />
+            <StatCard label="CURRENT" value={lastWeight != null ? `${lastWeight.toFixed(1)}kg` : '—'} color="#6366f1" />
+            {firstWeight != null && lastWeight != null && (
+              <>
+                <StatCard label="LOST" value={`${(firstWeight - lastWeight).toFixed(1)}kg`} color="#22c55e" />
+                <StatCard label="LOGS" value={String(weightData.length)} color="#fff" />
+              </>
+            )}
           </>
         )}
+
+        {tab === 'Waist' && (
+          <>
+            <StatCard label="STARTED OUT" value={firstWaistExt != null ? `${firstWaistExt.toFixed(1)}cm` : '—'} color="#fff" />
+            <StatCard label="CURRENT OUT" value={lastWaistExt != null ? `${lastWaistExt.toFixed(1)}cm` : '—'} color="#ec4899" />
+            <StatCard label="STARTED IN" value={firstWaistIn != null ? `${firstWaistIn.toFixed(1)}cm` : '—'} color="#fff" />
+            <StatCard label="CURRENT IN" value={lastWaistIn != null ? `${lastWaistIn.toFixed(1)}cm` : '—'} color="#6366f1" />
+          </>
+        )}
+
+        {tab === 'BMI' && (
+          <>
+            <StatCard label="STARTED" value={firstBmi != null ? firstBmi.toFixed(1) : '—'} color="#fff" />
+            <StatCard label="CURRENT" value={lastBmi != null ? lastBmi.toFixed(1) : '—'} color="#22c55e" />
+            {firstBmi != null && lastBmi != null && (
+              <>
+                <StatCard label="CHANGE" value={`${(lastBmi - firstBmi) > 0 ? '+' : ''}${(lastBmi - firstBmi).toFixed(1)}`} color={(lastBmi - firstBmi) < 0 ? '#22c55e' : '#ef4444'} />
+                <StatCard label="LOGS" value={String(bmiData.length)} color="#fff" />
+              </>
+            )}
+          </>
+        )}
+
+        {tab === 'Streak' && (
+          <>
+            <StatCard label="LOGS" value={String(logs.length)} color="#fff" />
+            <StatCard label="WORKOUTS" value={String(workoutsTotal)} color="#22c55e" />
+            <StatCard label="STREAK" value={`${streaks.current}d`} color="#f59e0b" />
+            <StatCard label="BEST STREAK" value={`${streaks.longest}d`} color="#6366f1" />
+          </>
+        )}
+
       </div>
 
       <div style={{ height: '32px' }} />
+    </div>
+  )
+}
+
+function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div className="card-base" style={{ padding: '14px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: '26px', color, marginTop: '2px', lineHeight: 1.1 }}>{value}</div>
     </div>
   )
 }
