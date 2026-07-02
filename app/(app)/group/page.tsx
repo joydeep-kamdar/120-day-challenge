@@ -71,7 +71,7 @@ export default async function GroupPage() {
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '2px', color: '#fff', lineHeight: 1 }}>
           {membership.challenge.name.toUpperCase()}
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '2px', marginTop: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '2px', marginTop: '4px' }}>
           {members.length} MEMBERS · DAY 30 OF 120
         </div>
       </div>

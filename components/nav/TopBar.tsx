@@ -59,7 +59,7 @@ export async function TopBar() {
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '10px',
-            color: '#3a3a3a',
+            color: '#9ca3af',
             letterSpacing: '2px',
           }}
         >

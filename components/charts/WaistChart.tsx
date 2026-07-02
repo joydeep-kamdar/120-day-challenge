@@ -39,7 +39,7 @@ export function WaistChart({ data, goalExtendedCm, goalSuckedinCm }: Props) {
   return (
     <div className="card-base" style={{ padding: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px' }}>WAIST cm</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px' }}>WAIST cm</div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <div style={{ width: '16px', height: '2px', background: '#ec4899', borderRadius: '1px' }} />
@@ -57,13 +57,13 @@ export function WaistChart({ data, goalExtendedCm, goalSuckedinCm }: Props) {
           <LineChart data={chartData}>
             <XAxis
               dataKey="day"
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[min, max]}
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
               width={35}
@@ -110,7 +110,7 @@ export function WaistChart({ data, goalExtendedCm, goalSuckedinCm }: Props) {
           </LineChart>
         </ResponsiveContainer>
       ) : (
-        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#444' }}>
+        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#9ca3af' }}>
           Log waist measurements to see progress
         </div>
       )}

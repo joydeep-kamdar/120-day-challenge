@@ -26,7 +26,7 @@ export function BMIChart({ data, goalBmi }: Props) {
   return (
     <div className="card-base" style={{ padding: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px' }}>BMI</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px' }}>BMI</div>
         {bmis.length >= 1 && (
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#22c55e' }}>
             {bmis[bmis.length - 1].toFixed(1)} current
@@ -45,13 +45,13 @@ export function BMIChart({ data, goalBmi }: Props) {
             </defs>
             <XAxis
               dataKey="day"
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[min, max]}
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
               width={35}
@@ -85,7 +85,7 @@ export function BMIChart({ data, goalBmi }: Props) {
           </AreaChart>
         </ResponsiveContainer>
       ) : (
-        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#444' }}>
+        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#9ca3af' }}>
           Log weight + height to see BMI trend
         </div>
       )}

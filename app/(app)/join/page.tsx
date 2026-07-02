@@ -19,7 +19,7 @@ export default function JoinLandingPage() {
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#fff', lineHeight: 1, marginBottom: '6px' }}>
         JOIN A CHALLENGE
       </div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '2px', marginBottom: '32px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '32px' }}>
         ENTER YOUR INVITE CODE BELOW
       </div>
 

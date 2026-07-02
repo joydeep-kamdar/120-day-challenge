@@ -59,14 +59,14 @@ export function MemberCard({
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: loggedToday ? (workedOutToday ? '#22c55e' : '#f59e0b') : '#3a3a3a', letterSpacing: '1px' }}>
             {loggedToday ? (workedOutToday ? '✅ today' : '📝 today') : '💤 today'}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>·</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>·</span>
           {/* This week */}
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#555', letterSpacing: '1px' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '1px' }}>
             {thisWeekCount}/7 this week
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>·</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>·</span>
           {/* Total */}
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#555', letterSpacing: '1px' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '1px' }}>
             {totalLogs} total
           </span>
         </div>
@@ -78,7 +78,7 @@ export function MemberCard({
           🔥 {currentStreak}d
         </div>
         {latestWeight && (
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', marginTop: '2px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
             {latestWeight.toFixed(1)}kg
           </div>
         )}

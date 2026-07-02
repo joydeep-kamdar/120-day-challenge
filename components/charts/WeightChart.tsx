@@ -26,7 +26,7 @@ export function WeightChart({ data, goalWeightKg }: Props) {
   return (
     <div className="card-base" style={{ padding: '16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px' }}>WEIGHT kg</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px' }}>WEIGHT kg</div>
         {weights.length >= 2 && (
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6366f1' }}>
             {weights[0].toFixed(1)} → {weights[weights.length - 1].toFixed(1)}
@@ -50,13 +50,13 @@ export function WeightChart({ data, goalWeightKg }: Props) {
             </defs>
             <XAxis
               dataKey="day"
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={[min, max]}
-              tick={{ fill: '#444', fontSize: 10, fontFamily: 'var(--font-mono)' }}
+              tick={{ fill: '#6b7280', fontSize: 10, fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
               width={35}
@@ -86,7 +86,7 @@ export function WeightChart({ data, goalWeightKg }: Props) {
           </AreaChart>
         </ResponsiveContainer>
       ) : (
-        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#444' }}>
+        <div style={{ height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', fontSize: '13px', color: '#9ca3af' }}>
           Log your weight to see progress
         </div>
       )}

@@ -63,7 +63,7 @@ export function BottomNav() {
                   fontFamily: 'var(--font-mono)',
                   fontSize: '9px',
                   letterSpacing: '1px',
-                  color: '#555',
+                  color: '#9ca3af',
                   marginTop: '4px',
                 }}
               >
@@ -86,8 +86,8 @@ export function BottomNav() {
               padding: '8px 4px',
               cursor: 'pointer',
               textDecoration: 'none',
-              color: active ? '#6366f1' : '#555',
-              opacity: active ? 1 : 0.45,
+              color: active ? '#6366f1' : '#9ca3af',
+              opacity: 1,
               transform: active ? 'translateY(-1px)' : 'none',
               transition: 'all 0.2s',
             }}

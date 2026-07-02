@@ -29,7 +29,7 @@ export default function NewChallengePage() {
         >
           120 DAY CHALLENGE
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '3px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '3px' }}>
           SET UP YOUR SQUAD
         </div>
       </div>
@@ -42,7 +42,7 @@ export default function NewChallengePage() {
 
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '4px', marginTop: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '4px', marginTop: '4px' }}>
           ABOUT YOU
         </div>
 
@@ -50,7 +50,7 @@ export default function NewChallengePage() {
         <Field label="CURRENT WEIGHT (KG)" name="startWeightKg" type="number" placeholder="85.0" inputMode="decimal" step="0.1" min="30" max="300" />
         <Field label="GOAL WEIGHT (KG)" name="goalWeightKg" type="number" placeholder="75.0" inputMode="decimal" step="0.1" min="30" max="300" />
 
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '4px', marginTop: '12px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '4px', marginTop: '12px' }}>
           YOUR CHALLENGE
         </div>
 
@@ -79,7 +79,7 @@ export default function NewChallengePage() {
           {pending ? 'CREATING...' : 'CREATE CHALLENGE →'}
         </button>
 
-        <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#333', letterSpacing: '2px', marginTop: '4px' }}>
+        <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#7c8499', letterSpacing: '2px', marginTop: '4px' }}>
           INVITE LINK GENERATED AUTOMATICALLY
         </p>
       </form>
@@ -117,7 +117,7 @@ function Field({
         padding: '14px 16px',
       }}
     >
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
         {label}
       </div>
       <input

@@ -79,7 +79,7 @@ export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Prop
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '34px', letterSpacing: '2px', color: '#fff' }}>
           TODAY&apos;S LOG
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3a3a3a', letterSpacing: '2px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '2px' }}>
           {todayStr}
         </div>
       </div>
@@ -153,7 +153,7 @@ export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Prop
               className="card-base"
               style={{ border: '1px solid rgba(34,197,94,0.2)', padding: '14px', marginTop: '10px' }}
             >
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '8px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '8px' }}>
                 WORKOUT NOTE
               </div>
               <textarea
@@ -182,7 +182,7 @@ export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Prop
       <div className="slabel">MEASUREMENTS</div>
       <div className="card-base" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
             WEIGHT kg {liveBmi && <span style={{ color: '#6366f1' }}>· BMI {liveBmi.toFixed(1)}</span>}
           </div>
           <input
@@ -197,7 +197,7 @@ export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Prop
         </div>
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
             WAIST EXTENDED cm
           </div>
           <input
@@ -212,7 +212,7 @@ export function DailyLogForm({ challengeId, existingLog, today, heightCm }: Prop
         </div>
         <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
             WAIST SUCKED IN cm
           </div>
           <input

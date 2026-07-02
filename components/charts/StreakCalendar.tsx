@@ -10,13 +10,13 @@ export function StreakCalendar({ streakDates }: Props) {
 
   return (
     <div className="card-base" style={{ padding: '16px' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '12px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '12px' }}>
         WORKOUT CALENDAR
       </div>
       {/* Day headers */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px', marginBottom: '4px' }}>
         {['M','T','W','T','F','S','S'].map((d, i) => (
-          <div key={i} style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#2a2a2a' }}>{d}</div>
+          <div key={i} style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#6b7280' }}>{d}</div>
         ))}
       </div>
       {/* Calendar grid — 42 cells (6 weeks) */}
@@ -42,9 +42,9 @@ export function StreakCalendar({ streakDates }: Props) {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
         <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)' }} />
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>Workout</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>Workout</span>
         <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: 'rgba(255,255,255,0.04)', marginLeft: '8px' }} />
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>Rest</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>Rest</span>
       </div>
     </div>
   )

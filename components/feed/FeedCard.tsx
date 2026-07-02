@@ -83,10 +83,10 @@ export function FeedCard({ log, currentUserId }: Props) {
             <div style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, color: '#fff' }}>
               {log.user.name ?? 'Someone'}
               {log.userId === currentUserId && (
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', marginLeft: '6px' }}>(you)</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', marginLeft: '6px' }}>(you)</span>
               )}
             </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>{relTime}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>{relTime}</div>
           </div>
         </div>
         <div style={{ fontSize: '22px' }}>{log.moodEmoji}</div>
@@ -138,7 +138,7 @@ export function FeedCard({ log, currentUserId }: Props) {
               }}
             >
               {emoji}
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#555' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af' }}>
                 {count || ''}
               </span>
             </button>

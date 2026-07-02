@@ -27,7 +27,7 @@ export default async function DashboardPage() {
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '2px', color: '#fff', marginBottom: '8px' }}>
           NO CHALLENGE YET
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#444', marginBottom: '24px', letterSpacing: '1px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af', marginBottom: '24px', letterSpacing: '1px' }}>
           Create one or join with an invite link
         </div>
         <a

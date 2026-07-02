@@ -33,7 +33,7 @@ export default function JoinPage() {
         >
           TO THE SQUAD
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '3px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '3px' }}>
           120 DAY CHALLENGE
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function JoinPage() {
       {/* Invite code badge */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
         <div style={{ background: 'rgba(99,102,241,.1)', border: '1px solid rgba(99,102,241,.3)', borderRadius: '12px', padding: '10px 20px' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '2px', marginRight: '8px' }}>CODE</span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '2px', marginRight: '8px' }}>CODE</span>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '15px', color: '#6366f1', letterSpacing: '3px', fontWeight: 700 }}>{code}</span>
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function JoinPage() {
       <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <input type="hidden" name="inviteCode" value={code} />
 
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '4px' }}>
           YOUR STATS
         </div>
 
@@ -92,7 +92,7 @@ export default function JoinPage() {
 function Field({ label, name, placeholder }: { label: string; name: string; placeholder: string }) {
   return (
     <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '14px 16px' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
         {label}
       </div>
       <input

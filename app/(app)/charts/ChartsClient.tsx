@@ -174,7 +174,7 @@ export function ChartsClient({ logs, goals }: Props) {
 function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div className="card-base" style={{ padding: '14px' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px' }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '1px' }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '26px', color, marginTop: '2px', lineHeight: 1.1 }}>{value}</div>
     </div>
   )

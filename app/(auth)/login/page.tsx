@@ -49,7 +49,7 @@ function LoginForm() {
         >
           CHALLENGE
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#3a3a3a', letterSpacing: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '4px' }}>
           THE SQUAD AWAITS
         </div>
       </div>
@@ -93,7 +93,7 @@ function LoginForm() {
         </span>
       </button>
 
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#2a2a2a', letterSpacing: '2px', marginTop: '24px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6b7280', letterSpacing: '2px', marginTop: '24px' }}>
         SQUAD MEMBERS ONLY
       </div>
     </div>
@@ -104,7 +104,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#444' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#9ca3af' }}>
           LOADING...
         </div>
       </div>

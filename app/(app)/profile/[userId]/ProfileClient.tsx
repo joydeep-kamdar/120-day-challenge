@@ -58,7 +58,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
           <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '1px', color: '#fff', lineHeight: 1 }}>
             {user.name.toUpperCase()}
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#444', letterSpacing: '1px', marginTop: '4px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '1px', marginTop: '4px' }}>
             {user.email}
           </div>
           {challenge && (
@@ -72,7 +72,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
       {/* Challenge invite */}
       {challenge && (
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '8px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '8px' }}>
             INVITE YOUR SQUAD
           </div>
           <button
@@ -102,7 +102,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
 
       {/* Create / join challenge */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '8px' }}>
           CHALLENGES
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -151,7 +151,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
       {/* Challenge switcher — only shown when in multiple challenges */}
       {allChallenges.length > 1 && (
         <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '8px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '8px' }}>
             YOUR CHALLENGES
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -180,7 +180,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
                     <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: isActive ? '#818cf8' : '#fff' }}>
                       {c.name}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px', marginTop: '2px' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '1px', marginTop: '2px' }}>
                       DAY {c.dayNum} · STARTED {c.startDate}
                     </div>
                   </div>
@@ -195,7 +195,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
       )}
 
       {/* Stats form */}
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '12px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginBottom: '12px' }}>
         YOUR STATS
       </div>
 
@@ -215,7 +215,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
         <Field label="START WEIGHT (KG)" name="startWeightKg" defaultValue={profile?.startWeightKg?.toString() ?? ''} placeholder="85.0" />
         <Field label="GOAL WEIGHT (KG)" name="goalWeightKg" defaultValue={profile?.goalWeightKg?.toString() ?? ''} placeholder="75.0" />
 
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginTop: '8px', marginBottom: '-2px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#9ca3af', marginTop: '8px', marginBottom: '-2px' }}>
           WAIST GOALS (OPTIONAL)
         </div>
         <Field label="GOAL WAIST BELLY OUT (CM)" name="goalWaistExtendedCm" defaultValue={profile?.goalWaistExtendedCm?.toString() ?? ''} placeholder="e.g. 82" required={false} />
@@ -257,7 +257,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
           fontFamily: 'var(--font-mono)',
           fontSize: '11px',
           letterSpacing: '2px',
-          color: '#444',
+          color: '#9ca3af',
         }}
       >
         SIGN OUT
@@ -269,7 +269,7 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
 function Field({ label, name, defaultValue, placeholder, required = true }: { label: string; name: string; defaultValue: string; placeholder: string; required?: boolean }) {
   return (
     <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '14px 16px' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '6px' }}>
         {label}
       </div>
       <input

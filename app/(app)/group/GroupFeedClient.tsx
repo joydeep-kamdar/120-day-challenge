@@ -68,7 +68,7 @@ export function GroupFeedClient({ currentUserId, memberStats, feedLogs, challeng
       {tab === 'feed' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {feedLogs.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#444', letterSpacing: '2px' }}>
+            <div style={{ textAlign: 'center', padding: '48px 0', fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af', letterSpacing: '2px' }}>
               NO ACTIVITY THIS WEEK
             </div>
           ) : (
