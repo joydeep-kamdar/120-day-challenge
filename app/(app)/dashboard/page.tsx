@@ -126,6 +126,19 @@ export default async function DashboardPage() {
   const weightLost = startWeight - currentWeight
   const hasLoggedToday = myLogs.some(l => l.date === today)
 
+  // Waist progress — derive start from earliest log that has waist data
+  const logsChron = [...myLogs].reverse()
+  const firstWaistLog = logsChron.find(l => l.waistExtendedCm != null)
+  const latestWaistLog = myLogs.find(l => l.waistExtendedCm != null)
+  const waistProgress = profile?.goalWaistExtendedCm && firstWaistLog && latestWaistLog ? {
+    startExtended: firstWaistLog.waistExtendedCm!,
+    startSuckedin: firstWaistLog.waistSuckedinCm ?? firstWaistLog.waistExtendedCm!,
+    currentExtended: latestWaistLog.waistExtendedCm!,
+    currentSuckedin: latestWaistLog.waistSuckedinCm ?? latestWaistLog.waistExtendedCm!,
+    goalExtended: profile.goalWaistExtendedCm,
+    goalSuckedin: profile.goalWaistSuckedinCm ?? profile.goalWaistExtendedCm,
+  } : null
+
   return (
     <DashboardClient
       user={{ id: userId, name: session.user.name ?? 'You', image: session.user.image ?? null }}
@@ -139,6 +152,7 @@ export default async function DashboardPage() {
       badges={myBadges}
       hasLoggedToday={hasLoggedToday}
       squadStandings={squadWithStats}
+      waistProgress={waistProgress}
     />
   )
 }

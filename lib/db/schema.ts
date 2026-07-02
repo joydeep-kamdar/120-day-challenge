@@ -56,6 +56,8 @@ export const userProfiles = pgTable('user_profiles', {
   heightCm: real('height_cm').notNull().default(170),
   startWeightKg: real('start_weight_kg').notNull(),
   goalWeightKg: real('goal_weight_kg').notNull(),
+  goalWaistExtendedCm: real('goal_waist_extended_cm'),
+  goalWaistSuckedinCm: real('goal_waist_suckedin_cm'),
   updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 })
 

@@ -17,6 +17,15 @@ interface SquadMember {
   isMe: boolean
 }
 
+interface WaistProgress {
+  startExtended: number
+  startSuckedin: number
+  currentExtended: number
+  currentSuckedin: number
+  goalExtended: number
+  goalSuckedin: number
+}
+
 interface Props {
   user: { id: string; name: string; image: string | null }
   challenge: {
@@ -34,6 +43,7 @@ interface Props {
   badges: Array<{ badgeType: string; earnedAt: Date }>
   hasLoggedToday: boolean
   squadStandings: SquadMember[]
+  waistProgress: WaistProgress | null
 }
 
 export function DashboardClient({
@@ -48,6 +58,7 @@ export function DashboardClient({
   badges,
   hasLoggedToday,
   squadStandings,
+  waistProgress,
 }: Props) {
   const startDate = new Date(challenge.startDate)
   const startW = profile?.startWeightKg ?? 0
@@ -154,6 +165,49 @@ export function DashboardClient({
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', marginTop: '5px', textAlign: 'right' }}>
             {goalDiff <= 0 ? 'Goal reached! 🎉' : `${goalDiff.toFixed(1)}kg to go`}
           </div>
+
+          {/* Waist progress — only shown when goals are set */}
+          {waistProgress && (
+            <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              {/* Belly out */}
+              <div style={{ marginBottom: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#ec4899' }}>
+                    WAIST OUT &nbsp;{waistProgress.currentExtended.toFixed(1)}cm
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>
+                    GOAL {waistProgress.goalExtended.toFixed(1)}cm
+                  </div>
+                </div>
+                <div style={{ height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: '3px', background: '#ec4899',
+                    width: `${Math.min(100, Math.max(0, ((waistProgress.startExtended - waistProgress.currentExtended) / (waistProgress.startExtended - waistProgress.goalExtended)) * 100))}%`,
+                    transition: 'width 0.8s ease',
+                  }} />
+                </div>
+              </div>
+              {/* Sucked in */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6366f1' }}>
+                    WAIST IN &nbsp;{waistProgress.currentSuckedin.toFixed(1)}cm
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>
+                    GOAL {waistProgress.goalSuckedin.toFixed(1)}cm
+                  </div>
+                </div>
+                <div style={{ height: '5px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: '3px', background: '#6366f1',
+                    width: `${Math.min(100, Math.max(0, ((waistProgress.startSuckedin - waistProgress.currentSuckedin) / (waistProgress.startSuckedin - waistProgress.goalSuckedin)) * 100))}%`,
+                    transition: 'width 0.8s ease',
+                  }} />
+                </div>
+              </div>
+            </div>
+          )}
+
           <div style={{
             display: 'flex',
             alignItems: 'center',

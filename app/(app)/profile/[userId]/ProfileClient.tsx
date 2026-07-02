@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react'
 
 interface Props {
   user: { id: string; name: string; email: string; image: string | null }
-  profile: { heightCm: number; startWeightKg: number; goalWeightKg: number } | null
+  profile: { heightCm: number; startWeightKg: number; goalWeightKg: number; goalWaistExtendedCm: number | null; goalWaistSuckedinCm: number | null } | null
   challenge: { name: string; inviteCode: string; startDate: string } | null
   dayNum: number
 }
@@ -110,6 +110,12 @@ export function ProfileClient({ user, profile, challenge, dayNum }: Props) {
         <Field label="START WEIGHT (KG)" name="startWeightKg" defaultValue={profile?.startWeightKg?.toString() ?? ''} placeholder="85.0" />
         <Field label="GOAL WEIGHT (KG)" name="goalWeightKg" defaultValue={profile?.goalWeightKg?.toString() ?? ''} placeholder="75.0" />
 
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginTop: '8px', marginBottom: '-2px' }}>
+          WAIST GOALS (OPTIONAL)
+        </div>
+        <Field label="GOAL WAIST BELLY OUT (CM)" name="goalWaistExtendedCm" defaultValue={profile?.goalWaistExtendedCm?.toString() ?? ''} placeholder="e.g. 82" required={false} />
+        <Field label="GOAL WAIST SUCKED IN (CM)" name="goalWaistSuckedinCm" defaultValue={profile?.goalWaistSuckedinCm?.toString() ?? ''} placeholder="e.g. 76" required={false} />
+
         <button
           type="submit"
           disabled={pending}
@@ -155,7 +161,7 @@ export function ProfileClient({ user, profile, challenge, dayNum }: Props) {
   )
 }
 
-function Field({ label, name, defaultValue, placeholder }: { label: string; name: string; defaultValue: string; placeholder: string }) {
+function Field({ label, name, defaultValue, placeholder, required = true }: { label: string; name: string; defaultValue: string; placeholder: string; required?: boolean }) {
   return (
     <div style={{ background: '#141414', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '14px 16px' }}>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '2px', marginBottom: '6px' }}>
@@ -168,7 +174,7 @@ function Field({ label, name, defaultValue, placeholder }: { label: string; name
         step="0.1"
         defaultValue={defaultValue}
         placeholder={placeholder}
-        required
+        required={required}
         style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontSize: '18px', fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)' }}
       />
     </div>
