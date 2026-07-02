@@ -7,6 +7,16 @@ import { getDaysRemaining } from '@/lib/streaks'
 import { getBadgeDefinition } from '@/lib/badges'
 import type { StreakResult } from '@/lib/streaks'
 
+interface SquadMember {
+  userId: string
+  name: string
+  image: string | null
+  weightLost: number
+  streak: number
+  totalWorkouts: number
+  isMe: boolean
+}
+
 interface Props {
   user: { id: string; name: string; image: string | null }
   challenge: {
@@ -23,6 +33,7 @@ interface Props {
   totalWorkouts: number
   badges: Array<{ badgeType: string; earnedAt: Date }>
   hasLoggedToday: boolean
+  squadStandings: SquadMember[]
 }
 
 export function DashboardClient({
@@ -36,6 +47,7 @@ export function DashboardClient({
   totalWorkouts,
   badges,
   hasLoggedToday,
+  squadStandings,
 }: Props) {
   const startDate = new Date(challenge.startDate)
   const startW = profile?.startWeightKg ?? 0
@@ -222,53 +234,49 @@ export function DashboardClient({
       {/* SQUAD STANDINGS */}
       <div className="slabel">SQUAD STANDINGS</div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <div
-          className="card-base"
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px' }}
-        >
-          <div style={{ fontSize: '18px', width: '26px', textAlign: 'center' }}>🥇</div>
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              background: 'rgba(99,102,241,0.15)',
-              border: '2px solid #6366f1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontFamily: 'var(--font-display)',
-              fontSize: '14px',
-              fontWeight: 700,
-              color: '#818cf8',
-              flexShrink: 0,
-            }}
-          >
-            {user.name.charAt(0)}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: '#fff' }}>
-              {user.name.split(' ')[0]}
-            </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>
-              🔥 {streaks.current}d · {totalWorkouts} workouts
-            </div>
-          </div>
-          <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: '#22c55e' }}>
-            -{Math.max(0, weightLost).toFixed(1)}kg
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {squadStandings.slice(0, 3).map((member, i) => {
+            const medals = ['🥇', '🥈', '🥉']
+            const initial = member.name.charAt(0).toUpperCase()
+            return (
+              <div
+                key={member.userId}
+                className="card-base"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px',
+                  border: member.isMe ? '1px solid rgba(99,102,241,0.35)' : undefined,
+                  background: member.isMe ? 'rgba(99,102,241,0.06)' : undefined,
+                }}
+              >
+                <div style={{ fontSize: '18px', width: '26px', textAlign: 'center' }}>{medals[i] ?? `#${i + 1}`}</div>
+                {member.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={member.image} alt={member.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(99,102,241,0.4)', flexShrink: 0 }} />
+                ) : (
+                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid #6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '14px', color: '#818cf8', flexShrink: 0 }}>
+                    {initial}
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: '#fff' }}>
+                    {member.name.split(' ')[0]}{member.isMe ? ' (you)' : ''}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444' }}>
+                    🔥 {member.streak}d · {member.totalWorkouts} workouts
+                  </div>
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: member.weightLost > 0 ? '#22c55e' : '#555' }}>
+                  {member.weightLost > 0 ? `-${member.weightLost.toFixed(1)}` : '0.0'}kg
+                </div>
+              </div>
+            )
+          })}
         </div>
-        <div style={{ marginTop: '8px', textAlign: 'center' }}>
-          <Link
-            href="/group"
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '11px',
-              color: '#6366f1',
-              letterSpacing: '1px',
-              textDecoration: 'none',
-            }}
-          >
+        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+          <Link href="/group" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6366f1', letterSpacing: '1px', textDecoration: 'none' }}>
             SEE FULL LEADERBOARD →
           </Link>
         </div>

@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, challenges, dailyLogs, weeklyCheckins, userProfiles, badges } from '@/lib/db/schema'
+import { challengeMembers, dailyLogs, weeklyCheckins, userProfiles, badges, users } from '@/lib/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { DashboardClient } from './DashboardClient'
 import { calculateStreaks } from '@/lib/streaks'
@@ -13,7 +13,6 @@ export default async function DashboardPage() {
 
   const userId = session.user.id
 
-  // Get the user's first active challenge
   const membership = await db.query.challengeMembers.findFirst({
     where: eq(challengeMembers.userId, userId),
     with: { challenge: true },
@@ -25,19 +24,28 @@ export default async function DashboardPage() {
 
   if (!membership) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <span className="text-5xl mb-4">🔥</span>
-        <h2 className="text-xl font-bold mb-2" style={{ fontFamily: 'var(--font-heading)' }}>
-          No challenge yet
-        </h2>
-        <p className="text-muted-foreground text-sm mb-6">
-          Create a challenge or join one with an invite link to get started.
-        </p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', padding: '0 24px' }}>
+        <span style={{ fontSize: '48px', marginBottom: '16px' }}>🔥</span>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '2px', color: '#fff', marginBottom: '8px' }}>
+          NO CHALLENGE YET
+        </div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#444', marginBottom: '24px', letterSpacing: '1px' }}>
+          Create one or join with an invite link
+        </div>
         <a
           href="/challenge/new"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-orange text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+          style={{
+            padding: '16px 32px',
+            background: 'linear-gradient(135deg,#6366f1,#ec4899)',
+            borderRadius: '14px',
+            fontFamily: 'var(--font-display)',
+            fontSize: '20px',
+            letterSpacing: '2px',
+            color: '#fff',
+            textDecoration: 'none',
+          }}
         >
-          Create a Challenge
+          CREATE A CHALLENGE
         </a>
       </div>
     )
@@ -45,35 +53,75 @@ export default async function DashboardPage() {
 
   const challenge = membership.challenge
 
-  const [myLogs, myCheckins, myBadges] = await Promise.all([
+  // Fetch my data + all squad members in parallel
+  const [myLogs, myCheckins, myBadges, allMembers] = await Promise.all([
     db.query.dailyLogs.findMany({
-      where: and(
-        eq(dailyLogs.userId, userId),
-        eq(dailyLogs.challengeId, challenge.id)
-      ),
+      where: and(eq(dailyLogs.userId, userId), eq(dailyLogs.challengeId, challenge.id)),
       orderBy: [desc(dailyLogs.date)],
     }),
     db.query.weeklyCheckins.findMany({
-      where: and(
-        eq(weeklyCheckins.userId, userId),
-        eq(weeklyCheckins.challengeId, challenge.id)
-      ),
+      where: and(eq(weeklyCheckins.userId, userId), eq(weeklyCheckins.challengeId, challenge.id)),
       orderBy: [desc(weeklyCheckins.date)],
     }),
     db.query.badges.findMany({
-      where: and(
-        eq(badges.userId, userId),
-        eq(badges.challengeId, challenge.id)
-      ),
+      where: and(eq(badges.userId, userId), eq(badges.challengeId, challenge.id)),
     }),
+    // All members with their user info and profile
+    db
+      .select({
+        userId: challengeMembers.userId,
+        userName: users.name,
+        userImage: users.image,
+        startWeightKg: userProfiles.startWeightKg,
+      })
+      .from(challengeMembers)
+      .leftJoin(users, eq(users.id, challengeMembers.userId))
+      .leftJoin(userProfiles, eq(userProfiles.userId, challengeMembers.userId))
+      .where(eq(challengeMembers.challengeId, challenge.id)),
   ])
+
+  // Fetch latest log weight for each member
+  const squadWithStats = await Promise.all(
+    allMembers.map(async (member) => {
+      const latestLog = await db.query.dailyLogs.findFirst({
+        where: and(
+          eq(dailyLogs.userId, member.userId),
+          eq(dailyLogs.challengeId, challenge.id)
+        ),
+        orderBy: [desc(dailyLogs.date)],
+      })
+      const memberLogs = await db.query.dailyLogs.findMany({
+        where: and(
+          eq(dailyLogs.userId, member.userId),
+          eq(dailyLogs.challengeId, challenge.id)
+        ),
+        orderBy: [desc(dailyLogs.date)],
+      })
+      const streaks = calculateStreaks(memberLogs as Parameters<typeof calculateStreaks>[0])
+      const startW = member.startWeightKg ?? 0
+      const currentW = latestLog?.weightKg ?? startW
+      const weightLost = startW - currentW
+      return {
+        userId: member.userId,
+        name: member.userName ?? 'Member',
+        image: member.userImage ?? null,
+        weightLost,
+        streak: streaks.current,
+        totalWorkouts: memberLogs.filter(l => l.workoutDone).length,
+        isMe: member.userId === userId,
+      }
+    })
+  )
+
+  // Sort by weight lost descending
+  squadWithStats.sort((a, b) => b.weightLost - a.weightLost)
 
   const today = new Date().toISOString().split('T')[0]
   const streaks = calculateStreaks(myLogs as Parameters<typeof calculateStreaks>[0])
   const latestCheckin = myCheckins[0] ?? null
   const startWeight = profile?.startWeightKg ?? 0
   const goalWeight = profile?.goalWeightKg ?? 0
-  const currentWeight = latestCheckin?.weightKg ?? startWeight
+  const currentWeight = (myLogs[0]?.weightKg) ?? startWeight
   const progressPercent = getWeightProgress(currentWeight, startWeight, goalWeight)
   const weightLost = startWeight - currentWeight
   const hasLoggedToday = myLogs.some(l => l.date === today)
@@ -90,6 +138,7 @@ export default async function DashboardPage() {
       totalWorkouts={myLogs.filter(l => l.workoutDone).length}
       badges={myBadges}
       hasLoggedToday={hasLoggedToday}
+      squadStandings={squadWithStats}
     />
   )
 }
