@@ -1,16 +1,15 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useActionState } from 'react'
 import { createChallenge } from '@/app/actions/challenge'
 
-export default async function NewChallengePage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect('/login')
+const today = new Date().toISOString().split('T')[0]
 
-  const today = new Date().toISOString().split('T')[0]
+export default function NewChallengePage() {
+  const [state, formAction, pending] = useActionState(createChallenge, null)
 
   return (
     <div style={{ paddingTop: '8px' }}>
-      {/* Header */}
       <div style={{ marginBottom: '28px' }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: '36px', letterSpacing: '2px', lineHeight: 1, color: '#fff', marginBottom: '6px' }}>
           START YOUR
@@ -35,9 +34,14 @@ export default async function NewChallengePage() {
         </div>
       </div>
 
-      <form action={createChallenge} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {state?.error && (
+        <div style={{ background: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#ef4444', letterSpacing: '1px' }}>
+          {state.error}
+        </div>
+      )}
 
-        {/* About you */}
+      <form action={formAction} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '4px', marginTop: '4px' }}>
           ABOUT YOU
         </div>
@@ -46,7 +50,6 @@ export default async function NewChallengePage() {
         <Field label="CURRENT WEIGHT (KG)" name="startWeightKg" type="number" placeholder="85.0" inputMode="decimal" step="0.1" min="30" max="300" />
         <Field label="GOAL WEIGHT (KG)" name="goalWeightKg" type="number" placeholder="75.0" inputMode="decimal" step="0.1" min="30" max="300" />
 
-        {/* Challenge */}
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '4px', marginTop: '12px' }}>
           YOUR CHALLENGE
         </div>
@@ -54,25 +57,26 @@ export default async function NewChallengePage() {
         <Field label="CHALLENGE NAME" name="name" type="text" placeholder="120 Day Challenge" defaultValue="120 Day Challenge" />
         <Field label="START DATE" name="startDate" type="date" defaultValue={today} />
 
-        {/* Submit */}
         <button
           type="submit"
+          disabled={pending}
           style={{
             marginTop: '8px',
             width: '100%',
             padding: '20px',
-            background: 'linear-gradient(135deg,#6366f1,#ec4899)',
+            background: pending ? 'rgba(99,102,241,0.4)' : 'linear-gradient(135deg,#6366f1,#ec4899)',
             borderRadius: '16px',
             border: 'none',
-            cursor: 'pointer',
+            cursor: pending ? 'not-allowed' : 'pointer',
             fontFamily: 'var(--font-display)',
             fontSize: '24px',
             letterSpacing: '2px',
             color: '#fff',
-            boxShadow: '0 8px 30px rgba(99,102,241,0.35)',
+            boxShadow: pending ? 'none' : '0 8px 30px rgba(99,102,241,0.35)',
+            transition: 'all .2s',
           }}
         >
-          CREATE CHALLENGE →
+          {pending ? 'CREATING...' : 'CREATE CHALLENGE →'}
         </button>
 
         <p style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#333', letterSpacing: '2px', marginTop: '4px' }}>
@@ -98,7 +102,7 @@ function Field({
   name: string
   type: string
   placeholder?: string
-  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode']
+  inputMode?: React.InputHTMLAttributes<HTMLInputElement>['inputMode']
   step?: string
   min?: string
   max?: string

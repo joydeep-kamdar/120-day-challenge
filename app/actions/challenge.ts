@@ -13,12 +13,15 @@ function makeInviteCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase()
 }
 
-export async function createChallenge(formData: FormData) {
+export async function createChallenge(
+  _prevState: { error: string } | null,
+  formData: FormData
+): Promise<{ error: string } | null> {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
   const userId = session.user.id
-  const name = (formData.get('name') as string).trim()
+  const name = (formData.get('name') as string | null)?.trim() ?? ''
   const startDate = new Date(formData.get('startDate') as string)
   const heightCm = parseFloat(formData.get('heightCm') as string)
   const startWeightKg = parseFloat(formData.get('startWeightKg') as string)
@@ -32,7 +35,6 @@ export async function createChallenge(formData: FormData) {
   const inviteCode = makeInviteCode()
 
   await db.transaction(async (tx) => {
-    // Upsert profile
     await tx
       .insert(userProfiles)
       .values({ userId, heightCm, startWeightKg, goalWeightKg })
@@ -41,13 +43,11 @@ export async function createChallenge(formData: FormData) {
         set: { heightCm, startWeightKg, goalWeightKg },
       })
 
-    // Create challenge
     const [challenge] = await tx
       .insert(challenges)
       .values({ name, slug, inviteCode, startDate, createdBy: userId })
       .returning()
 
-    // Add creator as admin
     await tx.insert(challengeMembers).values({
       challengeId: challenge.id,
       userId,
