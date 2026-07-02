@@ -1,11 +1,12 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs, weeklyCheckins, userProfiles, badges, users } from '@/lib/db/schema'
+import { dailyLogs, weeklyCheckins, userProfiles, badges, users, challengeMembers } from '@/lib/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { DashboardClient } from './DashboardClient'
 import { calculateStreaks } from '@/lib/streaks'
 import { getWeightProgress } from '@/lib/bmi'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -13,10 +14,7 @@ export default async function DashboardPage() {
 
   const userId = session.user.id
 
-  const membership = await db.query.challengeMembers.findFirst({
-    where: eq(challengeMembers.userId, userId),
-    with: { challenge: true },
-  })
+  const { membership } = await getActiveMembership(userId)
 
   const profile = await db.query.userProfiles.findFirst({
     where: eq(userProfiles.userId, userId),

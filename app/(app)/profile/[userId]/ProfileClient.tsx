@@ -1,19 +1,30 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useState, useTransition } from 'react'
 import { updateProfile } from '@/app/actions/profile'
+import { switchActiveChallenge } from '@/app/actions/challenge'
 import { signOut } from 'next-auth/react'
+
+interface ChallengeOption {
+  id: string
+  name: string
+  startDate: string
+  dayNum: number
+}
 
 interface Props {
   user: { id: string; name: string; email: string; image: string | null }
   profile: { heightCm: number; startWeightKg: number; goalWeightKg: number; goalWaistExtendedCm: number | null; goalWaistSuckedinCm: number | null } | null
   challenge: { name: string; inviteCode: string; startDate: string } | null
   dayNum: number
+  allChallenges: ChallengeOption[]
+  activeChallengeId: string | null
 }
 
-export function ProfileClient({ user, profile, challenge, dayNum }: Props) {
+export function ProfileClient({ user, profile, challenge, dayNum, allChallenges, activeChallengeId }: Props) {
   const [state, formAction, pending] = useActionState(updateProfile, null)
   const [copied, setCopied] = useState(false)
+  const [switching, startSwitch] = useTransition()
 
   const inviteUrl = challenge
     ? `${window?.location?.origin ?? ''}/join/${challenge.inviteCode}`
@@ -86,6 +97,52 @@ export function ProfileClient({ user, profile, challenge, dayNum }: Props) {
               {copied ? 'COPIED ✓' : 'COPY'}
             </div>
           </button>
+        </div>
+      )}
+
+      {/* Challenge switcher — only shown when in multiple challenges */}
+      {allChallenges.length > 1 && (
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '8px' }}>
+            YOUR CHALLENGES
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {allChallenges.map(c => {
+              const isActive = c.id === activeChallengeId
+              return (
+                <button
+                  key={c.id}
+                  disabled={isActive || switching}
+                  onClick={() => startSwitch(() => switchActiveChallenge(c.id))}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: isActive ? 'rgba(99,102,241,0.1)' : '#141414',
+                    border: isActive ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: isActive ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: isActive ? '#818cf8' : '#fff' }}>
+                      {c.name}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#444', letterSpacing: '1px', marginTop: '2px' }}>
+                      DAY {c.dayNum} · STARTED {c.startDate}
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '1px', color: isActive ? '#6366f1' : '#333', flexShrink: 0 }}>
+                    {isActive ? 'ACTIVE ✓' : switching ? '...' : 'SWITCH →'}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { challengeMembers, dailyLogs, userProfiles, users } from '@/lib/db/schem
 import { eq, and, desc, asc } from 'drizzle-orm'
 import { calculateStreaks } from '@/lib/streaks'
 import { calculateBmi } from '@/lib/bmi'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 const client = new Anthropic()
 
@@ -42,11 +43,8 @@ export async function POST(request: Request) {
   const body = await request.json()
   const userMessage: string = body.message ?? 'How am I doing?'
 
-  // ── 1. Find user's challenge ────────────────────────────────────────────────
-  const membership = await db.query.challengeMembers.findFirst({
-    where: eq(challengeMembers.userId, userId),
-    with: { challenge: true },
-  })
+  // ── 1. Find user's active challenge ────────────────────────────────────────
+  const { membership } = await getActiveMembership(userId)
 
   if (!membership) {
     // No challenge — Zara still responds, just without data

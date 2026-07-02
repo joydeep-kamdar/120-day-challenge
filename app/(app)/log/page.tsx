@@ -2,9 +2,10 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { DailyLogForm } from '@/components/log/DailyLogForm'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs, userProfiles } from '@/lib/db/schema'
+import { dailyLogs, userProfiles } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { format } from 'date-fns'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export default async function LogPage() {
   const session = await auth()
@@ -13,14 +14,9 @@ export default async function LogPage() {
   const userId = session.user.id
   const today = format(new Date(), 'yyyy-MM-dd')
 
-  const [membership, profile] = await Promise.all([
-    db.query.challengeMembers.findFirst({
-      where: eq(challengeMembers.userId, userId),
-      with: { challenge: true },
-    }),
-    db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, userId),
-    }),
+  const [{ membership }, profile] = await Promise.all([
+    getActiveMembership(userId),
+    db.query.userProfiles.findFirst({ where: eq(userProfiles.userId, userId) }),
   ])
 
   if (!membership) redirect('/dashboard')

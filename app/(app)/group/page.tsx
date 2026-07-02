@@ -5,6 +5,7 @@ import { challengeMembers, dailyLogs } from '@/lib/db/schema'
 import { eq, and, inArray, desc } from 'drizzle-orm'
 import { GroupFeedClient } from './GroupFeedClient'
 import { calculateStreaks } from '@/lib/streaks'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export const revalidate = 30
 
@@ -14,10 +15,7 @@ export default async function GroupPage() {
 
   const userId = session.user.id
 
-  const membership = await db.query.challengeMembers.findFirst({
-    where: eq(challengeMembers.userId, userId),
-    with: { challenge: true },
-  })
+  const { membership } = await getActiveMembership(userId)
 
   if (!membership) redirect('/dashboard')
 

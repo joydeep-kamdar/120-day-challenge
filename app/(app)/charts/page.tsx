@@ -1,10 +1,11 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs, userProfiles } from '@/lib/db/schema'
+import { dailyLogs, userProfiles } from '@/lib/db/schema'
 import { eq, and, asc } from 'drizzle-orm'
 import { ChartsClient } from './ChartsClient'
 import { calculateBmi } from '@/lib/bmi'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export default async function ChartsPage() {
   const session = await auth()
@@ -12,13 +13,9 @@ export default async function ChartsPage() {
 
   const userId = session.user.id
 
-  const [membership, profile] = await Promise.all([
-    db.query.challengeMembers.findFirst({
-      where: eq(challengeMembers.userId, userId),
-    }),
-    db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, userId),
-    }),
+  const [{ membership }, profile] = await Promise.all([
+    getActiveMembership(userId),
+    db.query.userProfiles.findFirst({ where: eq(userProfiles.userId, userId) }),
   ])
 
   if (!membership) redirect('/dashboard')

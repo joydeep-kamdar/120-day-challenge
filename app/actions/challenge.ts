@@ -4,6 +4,31 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { challenges, challengeMembers, userProfiles } from '@/lib/db/schema'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
+import { revalidatePath } from 'next/cache'
+import { eq } from 'drizzle-orm'
+
+export async function switchActiveChallenge(challengeId: string) {
+  const session = await auth()
+  if (!session?.user?.id) return
+
+  // Verify the user is actually a member before honouring the switch
+  const membership = await db.query.challengeMembers.findFirst({
+    where: eq(challengeMembers.userId, session.user.id),
+  })
+  if (!membership) return
+
+  const cookieStore = await cookies()
+  cookieStore.set('active_challenge_id', challengeId, {
+    httpOnly: true,
+    path: '/',
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: 'lax',
+  })
+
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
+}
 
 function makeSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')

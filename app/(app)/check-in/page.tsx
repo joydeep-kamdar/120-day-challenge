@@ -1,11 +1,12 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, userProfiles } from '@/lib/db/schema'
+import { userProfiles } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { CheckInForm } from '@/components/checkin/CheckInForm'
 import { getWeekNumber } from '@/lib/streaks'
 import { format } from 'date-fns'
+import { getActiveMembership } from '@/lib/active-challenge'
 
 export default async function CheckInPage() {
   const session = await auth()
@@ -13,14 +14,9 @@ export default async function CheckInPage() {
 
   const userId = session.user.id
 
-  const [membership, profile] = await Promise.all([
-    db.query.challengeMembers.findFirst({
-      where: eq(challengeMembers.userId, userId),
-      with: { challenge: true },
-    }),
-    db.query.userProfiles.findFirst({
-      where: eq(userProfiles.userId, userId),
-    }),
+  const [{ membership }, profile] = await Promise.all([
+    getActiveMembership(userId),
+    db.query.userProfiles.findFirst({ where: eq(userProfiles.userId, userId) }),
   ])
 
   if (!membership) redirect('/dashboard')
