@@ -100,6 +100,54 @@ export function ProfileClient({ user, profile, challenge, dayNum, allChallenges,
         </div>
       )}
 
+      {/* Create / join challenge */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '3px', color: '#444', marginBottom: '8px' }}>
+          CHALLENGES
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a
+            href="/challenge/new"
+            style={{
+              flex: 1,
+              padding: '14px 12px',
+              background: 'linear-gradient(135deg,#6366f1,#ec4899)',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              textDecoration: 'none',
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>＋</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '1px', color: '#fff' }}>
+              CREATE
+            </span>
+          </a>
+          <a
+            href="/join"
+            style={{
+              flex: 1,
+              padding: '14px 12px',
+              background: '#141414',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              textDecoration: 'none',
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>🔗</span>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '16px', letterSpacing: '1px', color: '#fff' }}>
+              JOIN
+            </span>
+          </a>
+        </div>
+      </div>
+
       {/* Challenge switcher — only shown when in multiple challenges */}
       {allChallenges.length > 1 && (
         <div style={{ marginBottom: '24px' }}>
