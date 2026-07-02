@@ -12,6 +12,7 @@ export default auth((req) => {
   if (!isLoggedIn && !isPublic) {
     const url = req.nextUrl.clone()
     url.pathname = '/login'
+    url.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(url)
   }
 

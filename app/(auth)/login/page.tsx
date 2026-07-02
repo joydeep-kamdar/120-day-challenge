@@ -1,14 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginForm() {
   const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/dashboard'
 
   async function handleGoogleSignIn() {
     setLoading(true)
-    await signIn('google', { callbackUrl: '/dashboard' })
+    await signIn('google', { callbackUrl })
   }
 
   return (
@@ -94,5 +97,19 @@ export default function LoginPage() {
         SQUAD MEMBERS ONLY
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#444' }}>
+          LOADING...
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
