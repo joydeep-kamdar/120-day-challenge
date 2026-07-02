@@ -16,14 +16,22 @@ interface Log {
   bmi?: number | null
 }
 
+interface Goals {
+  weightKg: number | null
+  waistExtendedCm: number | null
+  waistSuckedinCm: number | null
+  bmi: number | null
+}
+
 interface Props {
   logs: Log[]
+  goals: Goals
 }
 
 const TABS = ['Weight', 'Waist', 'BMI', 'Streak'] as const
 type Tab = typeof TABS[number]
 
-export function ChartsClient({ logs }: Props) {
+export function ChartsClient({ logs, goals }: Props) {
   const [tab, setTab] = useState<Tab>('Weight')
 
   const streakDates = getStreakDatesForCalendar(
@@ -92,9 +100,9 @@ export function ChartsClient({ logs }: Props) {
       </div>
 
       {/* Content */}
-      {tab === 'Weight' && <WeightChart data={weightData} />}
-      {tab === 'Waist' && <WaistChart data={waistData} />}
-      {tab === 'BMI' && <BMIChart data={bmiData} />}
+      {tab === 'Weight' && <WeightChart data={weightData} goalWeightKg={goals.weightKg} />}
+      {tab === 'Waist' && <WaistChart data={waistData} goalExtendedCm={goals.waistExtendedCm} goalSuckedinCm={goals.waistSuckedinCm} />}
+      {tab === 'BMI' && <BMIChart data={bmiData} goalBmi={goals.bmi} />}
       {tab === 'Streak' && <StreakCalendar streakDates={streakDates} />}
 
       {/* MY STATS grid */}

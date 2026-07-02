@@ -1,9 +1,10 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { challengeMembers, dailyLogs } from '@/lib/db/schema'
+import { challengeMembers, dailyLogs, userProfiles } from '@/lib/db/schema'
 import { eq, and, asc } from 'drizzle-orm'
 import { ChartsClient } from './ChartsClient'
+import { calculateBmi } from '@/lib/bmi'
 
 export default async function ChartsPage() {
   const session = await auth()
@@ -11,9 +12,14 @@ export default async function ChartsPage() {
 
   const userId = session.user.id
 
-  const membership = await db.query.challengeMembers.findFirst({
-    where: eq(challengeMembers.userId, userId),
-  })
+  const [membership, profile] = await Promise.all([
+    db.query.challengeMembers.findFirst({
+      where: eq(challengeMembers.userId, userId),
+    }),
+    db.query.userProfiles.findFirst({
+      where: eq(userProfiles.userId, userId),
+    }),
+  ])
 
   if (!membership) redirect('/dashboard')
 
@@ -25,5 +31,20 @@ export default async function ChartsPage() {
     orderBy: [asc(dailyLogs.date)],
   })
 
-  return <ChartsClient logs={logs} />
+  const goalBmi =
+    profile?.goalWeightKg && profile?.heightCm
+      ? calculateBmi(profile.goalWeightKg, profile.heightCm)
+      : null
+
+  return (
+    <ChartsClient
+      logs={logs}
+      goals={{
+        weightKg: profile?.goalWeightKg ?? null,
+        waistExtendedCm: profile?.goalWaistExtendedCm ?? null,
+        waistSuckedinCm: profile?.goalWaistSuckedinCm ?? null,
+        bmi: goalBmi,
+      }}
+    />
+  )
 }
