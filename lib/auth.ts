@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
-import Resend from 'next-auth/providers/resend'
+import Google from 'next-auth/providers/google'
 import { db } from '@/lib/db'
 import { users, accounts, sessions, verificationTokens } from '@/lib/db/schema'
 
@@ -12,14 +12,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verificationTokensTable: verificationTokens,
   }),
   providers: [
-    Resend({
-      from: process.env.EMAIL_FROM ?? 'noreply@120daychallenge.app',
-      name: '120 Day Challenge',
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   pages: {
     signIn: '/login',
-    verifyRequest: '/login?verify=true',
     error: '/login?error=true',
   },
   callbacks: {
