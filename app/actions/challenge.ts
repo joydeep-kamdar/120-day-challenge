@@ -34,25 +34,23 @@ export async function createChallenge(
   const slug = makeSlug(name) + '-' + Date.now().toString(36)
   const inviteCode = makeInviteCode()
 
-  await db.transaction(async (tx) => {
-    await tx
-      .insert(userProfiles)
-      .values({ userId, heightCm, startWeightKg, goalWeightKg })
-      .onConflictDoUpdate({
-        target: userProfiles.userId,
-        set: { heightCm, startWeightKg, goalWeightKg },
-      })
-
-    const [challenge] = await tx
-      .insert(challenges)
-      .values({ name, slug, inviteCode, startDate, createdBy: userId })
-      .returning()
-
-    await tx.insert(challengeMembers).values({
-      challengeId: challenge.id,
-      userId,
-      role: 'admin',
+  await db
+    .insert(userProfiles)
+    .values({ userId, heightCm, startWeightKg, goalWeightKg })
+    .onConflictDoUpdate({
+      target: userProfiles.userId,
+      set: { heightCm, startWeightKg, goalWeightKg },
     })
+
+  const [challenge] = await db
+    .insert(challenges)
+    .values({ name, slug, inviteCode, startDate, createdBy: userId })
+    .returning()
+
+  await db.insert(challengeMembers).values({
+    challengeId: challenge.id,
+    userId,
+    role: 'admin',
   })
 
   redirect('/dashboard')
