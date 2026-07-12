@@ -19,9 +19,9 @@ export function BottomNav() {
       style={{
         display: 'flex',
         background: 'rgba(10,10,10,0.97)',
-        backdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(255,255,255,0.07)',
-        paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0px))',
+        backdropFilter: 'blur(16px)',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
         paddingTop: '0',
       }}
     >
@@ -44,16 +44,16 @@ export function BottomNav() {
             >
               <div
                 style={{
-                  width: '50px',
-                  height: '50px',
+                  width: '58px',
+                  height: '58px',
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg,#6366f1,#ec4899)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '22px',
-                  boxShadow: '0 4px 18px rgba(99,102,241,0.4)',
-                  marginTop: '-14px',
+                  fontSize: '26px',
+                  boxShadow: '0 4px 20px rgba(99,102,241,0.5)',
+                  marginTop: '-18px',
                 }}
               >
                 {emoji}
@@ -61,10 +61,10 @@ export function BottomNav() {
               <div
                 style={{
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '9px',
+                  fontSize: '11px',
                   letterSpacing: '1px',
                   color: '#9ca3af',
-                  marginTop: '4px',
+                  marginTop: '5px',
                 }}
               >
                 {label}
@@ -82,22 +82,22 @@ export function BottomNav() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: '3px',
-              padding: '8px 4px',
+              gap: '4px',
+              padding: '10px 4px 6px',
               cursor: 'pointer',
               textDecoration: 'none',
-              color: active ? '#6366f1' : '#9ca3af',
-              opacity: 1,
+              color: active ? '#6366f1' : '#555',
               transform: active ? 'translateY(-1px)' : 'none',
               transition: 'all 0.2s',
             }}
           >
-            <div style={{ fontSize: '20px' }}>{emoji}</div>
+            <div style={{ fontSize: '24px' }}>{emoji}</div>
             <div
               style={{
                 fontFamily: 'var(--font-mono)',
-                fontSize: '9px',
+                fontSize: '11px',
                 letterSpacing: '1px',
+                fontWeight: active ? 700 : 400,
               }}
             >
               {label}

@@ -116,6 +116,14 @@ export const reactions = pgTable('reactions', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 }, (t) => [unique().on(t.fromUserId, t.toLogId)])
 
+export const logComments = pgTable('log_comments', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+  logId: text('log_id').notNull().references(() => dailyLogs.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  text: text('text').notNull(),
+  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+})
+
 export const shoutouts = pgTable('shoutouts', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   fromUserId: text('from_user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -176,6 +184,12 @@ export const userProfilesRelations = relations(userProfiles, ({ one }) => ({
 export const dailyLogsRelations = relations(dailyLogs, ({ one, many }) => ({
   user: one(users, { fields: [dailyLogs.userId], references: [users.id] }),
   reactions: many(reactions),
+  comments: many(logComments),
+}))
+
+export const logCommentsRelations = relations(logComments, ({ one }) => ({
+  log: one(dailyLogs, { fields: [logComments.logId], references: [dailyLogs.id] }),
+  user: one(users, { fields: [logComments.userId], references: [users.id] }),
 }))
 
 export const weeklyCheckinsRelations = relations(weeklyCheckins, ({ one }) => ({

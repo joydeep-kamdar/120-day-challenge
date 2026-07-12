@@ -117,7 +117,7 @@ export function DashboardClient({
           />
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '4px' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#9ca3af', letterSpacing: '2px', marginBottom: '4px' }}>
                 CURRENT WEIGHT
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '62px', lineHeight: 1, color: '#fff', letterSpacing: '-1px' }}>
@@ -136,14 +136,14 @@ export function DashboardClient({
                     borderRadius: '20px',
                     padding: '4px 10px',
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
+                    fontSize: '13px',
                     color: bmiColor,
                     marginTop: '6px',
                     display: 'inline-block',
                   }}>
                     BMI {bmiVal.toFixed(1)}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', marginTop: '4px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
                     {getBmiLabel(bmiVal)}
                   </div>
                 </>
@@ -151,8 +151,8 @@ export function DashboardClient({
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>START {startW.toFixed(1)}kg</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6366f1' }}>GOAL {goalW.toFixed(1)}kg</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af' }}>START {startW.toFixed(1)}kg</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#6366f1' }}>GOAL {goalW.toFixed(1)}kg</div>
           </div>
           <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
             <motion.div
@@ -162,7 +162,7 @@ export function DashboardClient({
               transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
             />
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af', marginTop: '5px', textAlign: 'right' }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af', marginTop: '5px', textAlign: 'right' }}>
             {goalDiff <= 0 ? 'Goal reached! 🎉' : `${goalDiff.toFixed(1)}kg to go`}
           </div>
 
@@ -172,10 +172,10 @@ export function DashboardClient({
               {/* Belly out */}
               <div style={{ marginBottom: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#ec4899' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#ec4899' }}>
                     WAIST OUT &nbsp;{waistProgress.currentExtended.toFixed(1)}cm
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af' }}>
                     GOAL {waistProgress.goalExtended.toFixed(1)}cm
                   </div>
                 </div>
@@ -190,10 +190,10 @@ export function DashboardClient({
               {/* Sucked in */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#6366f1' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#6366f1' }}>
                     WAIST IN &nbsp;{waistProgress.currentSuckedin.toFixed(1)}cm
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af' }}>
                     GOAL {waistProgress.goalSuckedin.toFixed(1)}cm
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export function DashboardClient({
                 <div style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, color: '#fff' }}>
                   {todayPrompt}
                 </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#9ca3af', marginTop: '2px' }}>
                   {todaySub}
                 </div>
               </div>
@@ -275,7 +275,7 @@ export function DashboardClient({
                   }}
                 >
                   <div style={{ fontSize: '22px' }}>{def.emoji}</div>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '11px', fontWeight: 600, color: '#fff', marginTop: '4px' }}>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 600, color: '#fff', marginTop: '4px' }}>
                     {def.label}
                   </div>
                 </div>
@@ -315,10 +315,10 @@ export function DashboardClient({
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '14px', fontWeight: 600, color: '#fff' }}>
+                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 700, color: '#fff' }}>
                     {member.name.split(' ')[0]}{member.isMe ? ' (you)' : ''}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#9ca3af' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af' }}>
                     🔥 {member.streak}d · {member.totalWorkouts} workouts
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export function DashboardClient({
                   <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: member.weightLost > 0 ? '#22c55e' : '#9ca3af' }}>
                     {member.weightLost > 0 ? `-${member.weightLost.toFixed(1)}kg` : '—'}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: '#6b7280', letterSpacing: '1px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6b7280', letterSpacing: '1px' }}>
                     LOST
                   </div>
                 </div>
@@ -335,7 +335,7 @@ export function DashboardClient({
           })}
         </div>
         <div style={{ marginTop: '10px', textAlign: 'center' }}>
-          <Link href="/group" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6366f1', letterSpacing: '1px', textDecoration: 'none' }}>
+          <Link href="/group" style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#6366f1', letterSpacing: '1px', textDecoration: 'none' }}>
             SEE FULL LEADERBOARD →
           </Link>
         </div>

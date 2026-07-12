@@ -45,7 +45,7 @@ export async function TopBar() {
         <div
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '19px',
+            fontSize: '22px',
             letterSpacing: '2px',
             background: 'linear-gradient(135deg,#6366f1,#ec4899)',
             WebkitBackgroundClip: 'text',
@@ -61,7 +61,7 @@ export async function TopBar() {
         <div
           style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '10px',
+            fontSize: '13px',
             color: '#9ca3af',
             letterSpacing: '2px',
           }}
@@ -77,26 +77,26 @@ export async function TopBar() {
             src={session.user.image}
             alt={session.user.name ?? 'Profile'}
             style={{
-              width: '38px',
-              height: '38px',
+              width: '42px',
+              height: '42px',
               borderRadius: '50%',
               objectFit: 'cover',
-              border: '2px solid rgba(99,102,241,0.4)',
+              border: '2px solid rgba(99,102,241,0.45)',
             }}
           />
         ) : (
           <div
             style={{
-              width: '38px',
-              height: '38px',
+              width: '42px',
+              height: '42px',
               borderRadius: '50%',
               background: 'rgba(99,102,241,0.15)',
-              border: '2px solid rgba(99,102,241,0.4)',
+              border: '2px solid rgba(99,102,241,0.45)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: 'var(--font-display)',
-              fontSize: '16px',
+              fontSize: '18px',
               color: '#818cf8',
             }}
           >

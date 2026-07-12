@@ -23,7 +23,6 @@ export default async function GroupPage() {
   const today = new Date().toISOString().split('T')[0]
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
 
-  // All members with user info
   const members = await db.query.challengeMembers.findMany({
     where: eq(challengeMembers.challengeId, challengeId),
     with: { user: true },
@@ -31,17 +30,22 @@ export default async function GroupPage() {
 
   const memberIds = members.map(m => m.userId)
 
-  // All logs for this challenge (for feed + stats)
   const allLogs = await db.query.dailyLogs.findMany({
     where: and(
       eq(dailyLogs.challengeId, challengeId),
       inArray(dailyLogs.userId, memberIds)
     ),
-    orderBy: [desc(dailyLogs.date)],
-    with: { user: true, reactions: true },
+    orderBy: [desc(dailyLogs.date), desc(dailyLogs.createdAt)],
+    with: {
+      user: true,
+      reactions: true,
+      comments: {
+        with: { user: true },
+        orderBy: (c, { asc }) => [asc(c.createdAt)],
+      },
+    },
   })
 
-  // Per-member stats
   const memberStats = members.map(m => {
     const logs = allLogs.filter(l => l.userId === m.userId)
     const streaks = calculateStreaks(logs as Parameters<typeof calculateStreaks>[0])
@@ -62,23 +66,44 @@ export default async function GroupPage() {
     }
   })
 
-  // Feed: last 7 days of logs
-  const feedLogs = allLogs.filter(l => l.date >= weekAgo)
+  const feedLogs = allLogs
+    .filter(l => l.date >= weekAgo)
+    .map(l => ({
+      id: l.id,
+      userId: l.userId,
+      date: l.date,
+      workoutDone: l.workoutDone,
+      workoutNote: l.workoutNote,
+      moodEmoji: l.moodEmoji,
+      weightKg: l.weightKg,
+      waistExtendedCm: l.waistExtendedCm,
+      waistSuckedinCm: l.waistSuckedinCm,
+      createdAt: l.createdAt,
+      user: l.user,
+      reactions: l.reactions,
+      comments: (l.comments ?? []).map(c => ({
+        id: c.id,
+        userId: c.userId,
+        text: c.text,
+        createdAt: c.createdAt,
+        user: { name: c.user.name, image: c.user.image },
+      })),
+    }))
 
   return (
     <div style={{ paddingTop: '8px' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', letterSpacing: '2px', color: '#fff', lineHeight: 1 }}>
+      <div style={{ marginBottom: '22px' }}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', letterSpacing: '2px', color: '#fff', lineHeight: 1 }}>
           {membership.challenge.name.toUpperCase()}
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#9ca3af', letterSpacing: '2px', marginTop: '4px' }}>
-          {members.length} MEMBERS · DAY 30 OF 120
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#9ca3af', letterSpacing: '2px', marginTop: '5px' }}>
+          {members.length} MEMBERS
         </div>
       </div>
       <GroupFeedClient
         currentUserId={userId}
         memberStats={memberStats}
-        feedLogs={feedLogs as Parameters<typeof GroupFeedClient>[0]['feedLogs']}
+        feedLogs={feedLogs}
         challengeId={challengeId}
       />
     </div>

@@ -20,10 +20,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         style={{
           flex: 1,
           overflowY: 'auto',
-          paddingTop: '60px',
-          paddingBottom: '80px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
+          paddingTop: '66px',
+          paddingBottom: '90px',
+          paddingLeft: '18px',
+          paddingRight: '18px',
         }}
       >
         {children}

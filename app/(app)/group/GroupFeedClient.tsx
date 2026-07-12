@@ -17,6 +17,14 @@ interface MemberStat {
   latestWeight: number | null
 }
 
+interface FeedComment {
+  id: string
+  userId: string
+  text: string
+  createdAt: Date
+  user: { name: string | null; image: string | null }
+}
+
 interface FeedLog {
   id: string
   userId: string
@@ -25,9 +33,12 @@ interface FeedLog {
   workoutNote: string | null
   moodEmoji: string
   weightKg: number | null
+  waistExtendedCm: number | null
+  waistSuckedinCm: number | null
   createdAt: Date
   user: { id: string; name: string | null; image: string | null }
   reactions: Array<{ id: string; fromUserId: string; emoji: string }>
+  comments: FeedComment[]
 }
 
 interface Props {
@@ -39,18 +50,18 @@ interface Props {
 
 const TAB_STYLE = (active: boolean) => ({
   flex: 1,
-  padding: '10px 4px',
-  borderRadius: '10px',
+  padding: '12px 4px',
+  borderRadius: '12px',
   textAlign: 'center' as const,
   fontFamily: 'var(--font-mono)',
-  fontSize: '11px',
+  fontSize: '13px',
   fontWeight: 600,
   letterSpacing: '1px',
   cursor: 'pointer',
   border: 'none',
   transition: 'all 0.2s',
   background: active ? '#6366f1' : 'transparent',
-  color: active ? '#fff' : '#444',
+  color: active ? '#fff' : '#555',
 })
 
 export function GroupFeedClient({ currentUserId, memberStats, feedLogs, challengeId }: Props) {
@@ -59,16 +70,16 @@ export function GroupFeedClient({ currentUserId, memberStats, feedLogs, challeng
   return (
     <div>
       {/* Tab bar */}
-      <div style={{ display: 'flex', gap: '4px', background: '#141414', borderRadius: '14px', padding: '4px', marginBottom: '14px' }}>
+      <div style={{ display: 'flex', gap: '4px', background: '#141414', borderRadius: '16px', padding: '5px', marginBottom: '16px' }}>
         <button style={TAB_STYLE(tab === 'feed')} onClick={() => setTab('feed')}>FEED</button>
         <button style={TAB_STYLE(tab === 'crew')} onClick={() => setTab('crew')}>CREW</button>
       </div>
 
       {/* FEED */}
       {tab === 'feed' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {feedLogs.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af', letterSpacing: '2px' }}>
+            <div style={{ textAlign: 'center', padding: '60px 0', fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#4b5563', letterSpacing: '2px' }}>
               NO ACTIVITY THIS WEEK
             </div>
           ) : (
