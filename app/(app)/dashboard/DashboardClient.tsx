@@ -1,20 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { calculateBmi, getBmiLabel, getBmiColor } from '@/lib/bmi'
 import { getDaysRemaining } from '@/lib/streaks'
 import { getBadgeDefinition } from '@/lib/badges'
 import type { StreakResult } from '@/lib/streaks'
+import type { ScoreBreakdown } from '@/lib/scoring'
 
 interface SquadMember {
   userId: string
   name: string
   image: string | null
-  weightLost: number
+  overall: ScoreBreakdown
+  weekly: ScoreBreakdown
   streak: number
   totalWorkouts: number
   isMe: boolean
+  weightLost: number
 }
 
 interface WaistProgress {
@@ -60,6 +64,12 @@ export function DashboardClient({
   squadStandings,
   waistProgress,
 }: Props) {
+  const [rankTab, setRankTab] = useState<'overall' | 'weekly'>('overall')
+
+  const rankedOverall = [...squadStandings].sort((a, b) => b.overall.total - a.overall.total)
+  const rankedWeekly  = [...squadStandings].sort((a, b) => b.weekly.total  - a.weekly.total)
+  const ranked = rankTab === 'overall' ? rankedOverall : rankedWeekly
+
   const startDate = new Date(challenge.startDate)
   const startW = profile?.startWeightKg ?? 0
   const goalW = profile?.goalWeightKg ?? 0
@@ -286,57 +296,111 @@ export function DashboardClient({
       )}
 
       {/* SQUAD STANDINGS */}
-      <div className="slabel">SQUAD STANDINGS</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '22px 0 10px' }}>
+        <span className="slabel" style={{ margin: 0 }}>SQUAD STANDINGS</span>
+        <Link href="/rankings" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6366f1', letterSpacing: '1px', textDecoration: 'none', opacity: 0.8 }}>
+          HOW IT WORKS →
+        </Link>
+      </div>
+
+      {/* Overall / This Week tabs */}
+      <div style={{ display: 'flex', gap: '4px', background: '#141414', borderRadius: '14px', padding: '4px', marginBottom: '14px' }}>
+        {(['overall', 'weekly'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setRankTab(t)}
+            style={{
+              flex: 1, padding: '10px 4px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+              fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600, letterSpacing: '1px',
+              background: rankTab === t ? '#6366f1' : 'transparent',
+              color:      rankTab === t ? '#fff'    : '#555',
+              transition: 'all 0.2s',
+            }}
+          >
+            {t === 'overall' ? 'OVERALL' : 'THIS WEEK'}
+          </button>
+        ))}
+      </div>
+
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {squadStandings.slice(0, 3).map((member, i) => {
-            const medals = ['🥇', '🥈', '🥉']
+          {ranked.map((member, i) => {
+            const medals  = ['🥇', '🥈', '🥉']
             const initial = member.name.charAt(0).toUpperCase()
+            const score   = rankTab === 'overall' ? member.overall : member.weekly
+            const scoreColor =
+              score.total >= 60 ? '#22c55e' :
+              score.total >= 30 ? '#f59e0b' : '#9ca3af'
+
             return (
               <div
                 key={member.userId}
                 className="card-base"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px',
-                  border: member.isMe ? '1px solid rgba(99,102,241,0.35)' : undefined,
+                  padding: '14px',
+                  border:     member.isMe ? '1px solid rgba(99,102,241,0.4)' : undefined,
                   background: member.isMe ? 'rgba(99,102,241,0.06)' : undefined,
                 }}
               >
-                <div style={{ fontSize: '18px', width: '26px', textAlign: 'center' }}>{medals[i] ?? `#${i + 1}`}</div>
-                {member.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={member.image} alt={member.name} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(99,102,241,0.4)', flexShrink: 0 }} />
-                ) : (
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid #6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '14px', color: '#818cf8', flexShrink: 0 }}>
-                    {initial}
+                {/* Top row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ fontSize: '20px', width: '28px', textAlign: 'center', flexShrink: 0 }}>
+                    {medals[i] ?? `#${i + 1}`}
                   </div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 700, color: '#fff' }}>
-                    {member.name.split(' ')[0]}{member.isMe ? ' (you)' : ''}
+                  {member.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={member.image} alt={member.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(99,102,241,0.4)', flexShrink: 0 }} />
+                  ) : (
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '2px solid #6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontSize: '16px', color: '#818cf8', flexShrink: 0 }}>
+                      {initial}
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--font-sans)', fontSize: '16px', fontWeight: 700, color: '#fff' }}>
+                      {member.name.split(' ')[0]}{member.isMe ? ' (you)' : ''}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+                      🔥 {member.streak}d · {member.totalWorkouts} workouts
+                    </div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#9ca3af' }}>
-                    🔥 {member.streak}d · {member.totalWorkouts} workouts
+                  {/* Score */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', color: scoreColor, lineHeight: 1 }}>
+                      {score.total.toFixed(1)}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: '#4b5563', letterSpacing: '1px' }}>
+                      / 100 pts
+                    </div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', color: member.weightLost > 0 ? '#22c55e' : '#9ca3af' }}>
-                    {member.weightLost > 0 ? `-${member.weightLost.toFixed(1)}kg` : '—'}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#6b7280', letterSpacing: '1px' }}>
-                    LOST
-                  </div>
+
+                {/* Score breakdown bar */}
+                <div style={{ marginTop: '12px', display: 'flex', gap: '4px', height: '5px', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ width: `${score.weightPts / 100 * 100}%`, background: '#6366f1', borderRadius: '3px', transition: 'width 0.6s ease', minWidth: score.weightPts > 0 ? '3px' : 0 }} />
+                  <div style={{ width: `${score.waistPts / 100 * 100}%`, background: '#ec4899', borderRadius: '3px', transition: 'width 0.6s ease', minWidth: score.waistPts > 0 ? '3px' : 0 }} />
+                  <div style={{ width: `${score.consistencyPts / 100 * 100}%`, background: '#f59e0b', borderRadius: '3px', transition: 'width 0.6s ease', minWidth: score.consistencyPts > 0 ? '3px' : 0 }} />
+                </div>
+
+                {/* Stat pills */}
+                <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#818cf8', background: 'rgba(99,102,241,0.1)', borderRadius: '6px', padding: '3px 8px' }}>
+                    💪 {score.weightPct > 0 ? `-${score.weightPct}%` : '—'}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#f472b6', background: 'rgba(236,72,153,0.08)', borderRadius: '6px', padding: '3px 8px' }}>
+                    📏 {score.waistPct > 0 ? `-${score.waistPct}%` : '—'}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#fbbf24', background: 'rgba(245,158,11,0.08)', borderRadius: '6px', padding: '3px 8px' }}>
+                    🔥 {score.consistencyPct}%
+                  </span>
                 </div>
               </div>
             )
           })}
         </div>
-        <div style={{ marginTop: '10px', textAlign: 'center' }}>
+
+        <div style={{ marginTop: '12px', textAlign: 'center' }}>
           <Link href="/group" style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: '#6366f1', letterSpacing: '1px', textDecoration: 'none' }}>
-            SEE FULL LEADERBOARD →
+            SEE FULL SQUAD →
           </Link>
         </div>
       </motion.div>

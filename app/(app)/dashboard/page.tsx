@@ -7,6 +7,7 @@ import { DashboardClient } from './DashboardClient'
 import { calculateStreaks } from '@/lib/streaks'
 import { getWeightProgress } from '@/lib/bmi'
 import { getActiveMembership } from '@/lib/active-challenge'
+import { calcOverallScore, calcWeeklyScore } from '@/lib/scoring'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -51,7 +52,13 @@ export default async function DashboardPage() {
 
   const challenge = membership.challenge
 
-  // Fetch my data + all squad members in parallel
+  const today   = new Date().toISOString().split('T')[0]
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
+  const daysElapsed = Math.max(
+    1,
+    Math.floor((Date.now() - new Date(challenge.startDate).getTime()) / 86400000),
+  )
+
   const [myLogs, myCheckins, myBadges, allMembers] = await Promise.all([
     db.query.dailyLogs.findMany({
       where: and(eq(dailyLogs.userId, userId), eq(dailyLogs.challengeId, challenge.id)),
@@ -64,78 +71,109 @@ export default async function DashboardPage() {
     db.query.badges.findMany({
       where: and(eq(badges.userId, userId), eq(badges.challengeId, challenge.id)),
     }),
-    // All members with their user info and profile
     db
       .select({
-        userId: challengeMembers.userId,
-        userName: users.name,
-        userImage: users.image,
+        userId:        challengeMembers.userId,
+        userName:      users.name,
+        userImage:     users.image,
         startWeightKg: userProfiles.startWeightKg,
       })
       .from(challengeMembers)
-      .leftJoin(users, eq(users.id, challengeMembers.userId))
-      .leftJoin(userProfiles, eq(userProfiles.userId, challengeMembers.userId))
+      .leftJoin(users,         eq(users.id,         challengeMembers.userId))
+      .leftJoin(userProfiles,  eq(userProfiles.userId, challengeMembers.userId))
       .where(eq(challengeMembers.challengeId, challenge.id)),
   ])
 
-  // Fetch latest log weight for each member
   const squadWithStats = await Promise.all(
     allMembers.map(async (member) => {
-      const latestLog = await db.query.dailyLogs.findFirst({
-        where: and(
-          eq(dailyLogs.userId, member.userId),
-          eq(dailyLogs.challengeId, challenge.id)
-        ),
-        orderBy: [desc(dailyLogs.date)],
-      })
       const memberLogs = await db.query.dailyLogs.findMany({
         where: and(
-          eq(dailyLogs.userId, member.userId),
-          eq(dailyLogs.challengeId, challenge.id)
+          eq(dailyLogs.userId,      member.userId),
+          eq(dailyLogs.challengeId, challenge.id),
         ),
         orderBy: [desc(dailyLogs.date)],
       })
-      const streaks = calculateStreaks(memberLogs as Parameters<typeof calculateStreaks>[0])
-      const startW = member.startWeightKg ?? 0
-      const currentW = latestLog?.weightKg ?? startW
-      const weightLost = startW - currentW
+
+      const streaks       = calculateStreaks(memberLogs as Parameters<typeof calculateStreaks>[0])
+      const logsChron     = [...memberLogs].reverse()
+
+      const startW        = member.startWeightKg ?? 0
+      const latestWeightLog = memberLogs.find(l => l.weightKg != null)
+      const currentW      = latestWeightLog?.weightKg ?? startW
+
+      // Waist — use earliest and latest log that has waist data
+      const firstWaistLog  = logsChron.find(l => l.waistExtendedCm != null)
+      const latestWaistLog = memberLogs.find(l => l.waistExtendedCm != null)
+
+      // ── Overall score ────────────────────────────────────────────────────
+      const overall = calcOverallScore({
+        startWeightKg:  startW,
+        currentWeightKg: currentW,
+        firstWaistCm:  firstWaistLog?.waistExtendedCm  ?? null,
+        latestWaistCm: latestWaistLog?.waistExtendedCm ?? null,
+        totalLogs:     memberLogs.length,
+        daysElapsed,
+      })
+
+      // ── Weekly score ─────────────────────────────────────────────────────
+      const thisWeekLogs = memberLogs.filter(l => l.date >= weekAgo)
+      const prevLogs     = memberLogs.filter(l => l.date <  weekAgo)
+
+      // Baselines: latest reading from before the 7-day window (fallback: start values)
+      const prevWeightLog = prevLogs.find(l => l.weightKg       != null)
+      const prevWaistLog  = prevLogs.find(l => l.waistExtendedCm != null)
+
+      const thisWeekWeightLog = thisWeekLogs.find(l => l.weightKg       != null)
+      const thisWeekWaistLog  = thisWeekLogs.find(l => l.waistExtendedCm != null)
+
+      const weekly = calcWeeklyScore({
+        prevWeightKg:     prevWeightLog?.weightKg       ?? (startW > 0 ? startW : null),
+        thisWeekWeightKg: thisWeekWeightLog?.weightKg   ?? null,
+        prevWaistCm:      prevWaistLog?.waistExtendedCm ?? null,
+        thisWeekWaistCm:  thisWeekWaistLog?.waistExtendedCm ?? null,
+        logsThisWeek:     thisWeekLogs.length,
+      })
+
       return {
-        userId: member.userId,
-        name: member.userName ?? 'Member',
-        image: member.userImage ?? null,
-        weightLost,
-        streak: streaks.current,
-        totalWorkouts: memberLogs.filter(l => l.workoutDone).length,
-        isMe: member.userId === userId,
+        userId:       member.userId,
+        name:         member.userName ?? 'Member',
+        image:        member.userImage ?? null,
+        overall,
+        weekly,
+        streak:         streaks.current,
+        totalWorkouts:  memberLogs.filter(l => l.workoutDone).length,
+        isMe:           member.userId === userId,
+        // Keep for legacy display on weight-lost hero card
+        weightLost: startW - currentW,
       }
-    })
+    }),
   )
 
-  // Sort by weight lost descending
-  squadWithStats.sort((a, b) => b.weightLost - a.weightLost)
+  // Sort by overall score descending (dashboard default view)
+  squadWithStats.sort((a, b) => b.overall.total - a.overall.total)
 
-  const today = new Date().toISOString().split('T')[0]
-  const streaks = calculateStreaks(myLogs as Parameters<typeof calculateStreaks>[0])
+  const streaks       = calculateStreaks(myLogs as Parameters<typeof calculateStreaks>[0])
   const latestCheckin = myCheckins[0] ?? null
-  const startWeight = profile?.startWeightKg ?? 0
-  const goalWeight = profile?.goalWeightKg ?? 0
-  const currentWeight = (myLogs[0]?.weightKg) ?? startWeight
+  const startWeight   = profile?.startWeightKg ?? 0
+  const goalWeight    = profile?.goalWeightKg  ?? 0
+  const currentWeight = myLogs[0]?.weightKg    ?? startWeight
   const progressPercent = getWeightProgress(currentWeight, startWeight, goalWeight)
-  const weightLost = startWeight - currentWeight
+  const weightLost    = startWeight - currentWeight
   const hasLoggedToday = myLogs.some(l => l.date === today)
 
-  // Waist progress — derive start from earliest log that has waist data
-  const logsChron = [...myLogs].reverse()
-  const firstWaistLog = logsChron.find(l => l.waistExtendedCm != null)
-  const latestWaistLog = myLogs.find(l => l.waistExtendedCm != null)
-  const waistProgress = profile?.goalWaistExtendedCm && firstWaistLog && latestWaistLog ? {
-    startExtended: firstWaistLog.waistExtendedCm!,
-    startSuckedin: firstWaistLog.waistSuckedinCm ?? firstWaistLog.waistExtendedCm!,
-    currentExtended: latestWaistLog.waistExtendedCm!,
-    currentSuckedin: latestWaistLog.waistSuckedinCm ?? latestWaistLog.waistExtendedCm!,
-    goalExtended: profile.goalWaistExtendedCm,
-    goalSuckedin: profile.goalWaistSuckedinCm ?? profile.goalWaistExtendedCm,
-  } : null
+  const logsChron       = [...myLogs].reverse()
+  const firstWaistLog   = logsChron.find(l => l.waistExtendedCm != null)
+  const latestWaistLog  = myLogs.find(l => l.waistExtendedCm != null)
+  const waistProgress   = profile?.goalWaistExtendedCm && firstWaistLog && latestWaistLog
+    ? {
+        startExtended:   firstWaistLog.waistExtendedCm!,
+        startSuckedin:   firstWaistLog.waistSuckedinCm  ?? firstWaistLog.waistExtendedCm!,
+        currentExtended: latestWaistLog.waistExtendedCm!,
+        currentSuckedin: latestWaistLog.waistSuckedinCm ?? latestWaistLog.waistExtendedCm!,
+        goalExtended:    profile.goalWaistExtendedCm,
+        goalSuckedin:    profile.goalWaistSuckedinCm ?? profile.goalWaistExtendedCm,
+      }
+    : null
 
   return (
     <DashboardClient
