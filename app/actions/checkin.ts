@@ -6,6 +6,7 @@ import { weeklyCheckins, challengeMembers } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { calculateBmi } from '@/lib/bmi'
 import { getWeekNumber } from '@/lib/streaks'
+import { revalidatePath } from 'next/cache'
 
 interface SaveCheckinInput {
   challengeId: string
@@ -57,6 +58,8 @@ export async function saveCheckin(input: SaveCheckinInput) {
         bmi,
       })
     }
+
+    revalidatePath('/dashboard')
 
     return { success: true, bmi }
   } catch (err) {

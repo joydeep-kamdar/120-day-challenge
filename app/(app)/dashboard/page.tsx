@@ -156,7 +156,14 @@ export default async function DashboardPage() {
   const latestCheckin = myCheckins[0] ?? null
   const startWeight   = profile?.startWeightKg ?? 0
   const goalWeight    = profile?.goalWeightKg  ?? 0
-  const currentWeight = myLogs[0]?.weightKg    ?? startWeight
+
+  // Most recent weight reading across both daily logs and weekly check-ins, by date.
+  const latestWeightLog = myLogs.find(l => l.weightKg != null)
+  const currentWeight =
+    latestWeightLog && (!latestCheckin || latestWeightLog.date >= latestCheckin.date)
+      ? latestWeightLog.weightKg!
+      : latestCheckin?.weightKg ?? startWeight
+
   const progressPercent = getWeightProgress(currentWeight, startWeight, goalWeight)
   const weightLost    = startWeight - currentWeight
   const hasLoggedToday = myLogs.some(l => l.date === today)
@@ -180,7 +187,7 @@ export default async function DashboardPage() {
       user={{ id: userId, name: session.user.name ?? 'You', image: session.user.image ?? null }}
       challenge={challenge}
       streaks={streaks}
-      latestCheckin={latestCheckin}
+      currentWeightKg={currentWeight}
       profile={profile ?? null}
       progressPercent={progressPercent}
       weightLost={weightLost}
