@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { dailyLogs } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { calculateBmi } from '@/lib/bmi'
+import { revalidatePath } from 'next/cache'
 import type { MoodEmoji } from '@/types'
 
 interface SaveLogInput {
@@ -60,6 +61,8 @@ export async function saveDailyLog(input: SaveLogInput) {
         ...values,
       })
     }
+
+    revalidatePath('/dashboard')
 
     return { success: true }
   } catch (err) {

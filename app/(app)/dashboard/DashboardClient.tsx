@@ -39,7 +39,7 @@ interface Props {
     durationDays: number
   }
   streaks: StreakResult
-  latestCheckin: { weightKg: number; bmi: number; date: string } | null
+  currentWeightKg: number
   profile: { heightCm: number; startWeightKg: number; goalWeightKg: number; photoUrl: string | null } | null
   progressPercent: number
   weightLost: number
@@ -54,7 +54,7 @@ export function DashboardClient({
   user,
   challenge,
   streaks,
-  latestCheckin,
+  currentWeightKg,
   profile,
   progressPercent,
   weightLost,
@@ -73,7 +73,7 @@ export function DashboardClient({
   const startDate = new Date(challenge.startDate)
   const startW = profile?.startWeightKg ?? 0
   const goalW = profile?.goalWeightKg ?? 0
-  const curW = latestCheckin?.weightKg ?? startW
+  const curW = currentWeightKg
   const heightCm = profile?.heightCm ?? 0
   const bmiVal = heightCm > 0 ? calculateBmi(curW, heightCm) : null
   const bmiColor = bmiVal ? getBmiColor(bmiVal) : '#9ca3af'
